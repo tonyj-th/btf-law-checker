@@ -18,9 +18,14 @@ import sys
 import time
 from pathlib import Path
 
-import cohere
-import chromadb
-from chromadb.config import Settings
+try:
+    import cohere
+    import chromadb
+    from chromadb.config import Settings
+except ImportError:
+    cohere = None
+    chromadb = None
+    Settings = None
 
 # ─── Config ──────────────────────────────────────────────────────────────────
 

@@ -3,3 +3,4 @@ __pycache__/
 .env
 .venv/
 citation_cache.db
+kb_data/

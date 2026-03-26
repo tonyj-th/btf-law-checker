@@ -5,6 +5,7 @@ Progress is streamed to the frontend via Server-Sent Events (SSE).
 """
 
 import os
+import sys
 import json
 import uuid
 import asyncio
@@ -678,6 +679,37 @@ async def kb_status():
     if kb and kb.is_available():
         return kb.status()
     return {"available": False, "semantic_search": False, "act_count": 0, "section_count": 0, "source": "none", "build_date": "N/A", "vector_count": 0}
+
+
+@app.post("/api/kb-build")
+async def kb_build(background_tasks: BackgroundTasks):
+    """Trigger knowledge base build on the server (downloads dataset, parses sections, saves index)."""
+    kb_dir = os.environ.get("KB_DIR", "/data/kb")
+    index_path = Path(kb_dir) / "section_index.json"
+
+    if index_path.exists():
+        return {"status": "already_built", "message": "KB index already exists. Delete /data/kb/section_index.json to rebuild."}
+
+    # Run build in background
+    async def _build():
+        import subprocess
+        result = subprocess.run(
+            [sys.executable, "build_kb.py", "--output", kb_dir, "--skip-embed"],
+            capture_output=True, text=True, timeout=1800,
+        )
+        if result.returncode == 0:
+            logger.info(f"KB build complete: {result.stdout[-200:]}")
+            # Reload KB
+            try:
+                app.state.kb = LawKB(kb_dir)
+                logger.info(f"KB reloaded: {app.state.kb.act_count} acts")
+            except Exception as e:
+                logger.error(f"KB reload failed: {e}")
+        else:
+            logger.error(f"KB build failed: {result.stderr[-500:]}")
+
+    background_tasks.add_task(_build)
+    return {"status": "building", "message": "Knowledge base build started. Check /api/kb-status in a few minutes."}
 
 
 @app.get("/")

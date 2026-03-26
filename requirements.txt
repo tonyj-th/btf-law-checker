@@ -6,3 +6,4 @@ python-multipart==0.0.9
 aiosqlite==0.20.0
 chromadb>=0.5.0
 cohere>=5.0.0
+datasets>=3.0.0
