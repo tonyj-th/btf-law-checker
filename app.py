@@ -131,9 +131,10 @@ Be strict: only mark as "verified" if the search results clearly confirm accurac
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 
 def get_client():
-    if not ANTHROPIC_API_KEY:
+    key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not key:
         raise HTTPException(status_code=500, detail="ANTHROPIC_API_KEY not set")
-    return anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    return anthropic.Anthropic(api_key=key)
 
 
 def extract_text_from_docx(file_bytes: bytes) -> str:
