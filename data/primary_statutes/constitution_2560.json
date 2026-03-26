@@ -1,0 +1,42 @@
+{
+  "act_name_en": "Constitution of the Kingdom of Thailand",
+  "act_name_th": "รัฐธรรมนูญแห่งราชอาณาจักรไทย",
+  "year_be": "2560",
+  "year_ad": "2017",
+  "source_urls": [
+    "https://constitutionnet.org/sites/default/files/2017-05/CONSTITUTION+OF+THE+KINGDOM+OF+THAILAND+(B.E.+2560+(2017)).pdf",
+    "https://cdc.parliament.go.th/draftconstitution2/download/article/article_20180829093502.pdf",
+    "https://www.constituteproject.org/constitution/Thailand_2017.pdf"
+  ],
+  "chapter": "Chapter VI: Directive Principles of State Policies",
+  "sections": {
+    "64": {
+      "text_en": "Section 64. The State shall ensure that every child receives quality education for twelve years from pre-school to the completion of compulsory education free of charge. The State shall take measures to enable young children to be developed physically, mentally, and intellectually appropriate to their age.",
+      "amendment_notes": null
+    },
+    "65": {
+      "text_en": "Section 65. The State should develop a national strategy to serve as a goal for sustainable development of the country under the principle of good governance, and to be used as a framework for formulating consistent and integrated plans for the realization thereof.",
+      "amendment_notes": null
+    },
+    "72": {
+      "text_en": "Section 72. With regard to land, natural resources, and environment, the State should act as follows:\n(1) Lay down rules on the use of land throughout the country in accordance with the conditions of each area, including the actual state of the land and the law on town planning, and secure compliance with such rules efficiently, whereby rules on the use of land shall also enable local communities to participate in the determination thereof;\n(2) Prescribe measures for the fair distribution of landholding rights, and enable farmers to have ownership or rights in land for agriculture by land reform or other means, including providing assistance to facilitate land acquisition and water sources for farming;\n(3) Provide town planning for every province and enforce it efficiently so as to achieve urban and rural development in conformity with the needs of the area;\n(4) Provide a scheme for the efficient and sustainable management and preservation of natural resources, whereby local communities must be allowed to participate in and benefit from such management and preservation;\n(5) Promote, maintain, and protect the quality of the environment in accordance with the sustainable development principle, and control and eliminate pollution that affects health, welfare, and quality of life of the public.",
+      "amendment_notes": "This section establishes the constitutional framework for land policy, including land distribution and town planning. It is directive in nature (uses 'should') rather than mandatory."
+    },
+    "73": {
+      "text_en": "Section 73. The State should provide measures or mechanisms to enable farmers to efficiently carry out agriculture which yields produce of high quantity and quality that is safe, low cost, and competitive in the market, and should assist indigent farmers to have land for making a living through land reform or any other means.",
+      "amendment_notes": null
+    },
+    "74": {
+      "text_en": "Section 74. A government official, official, or employee of a government agency, State agency, State enterprise, or local government organisation, and other State officials shall have a duty to act in compliance with the law in order to protect public interests, and shall provide conveniences and services to the public in accordance with good public governance principles.",
+      "amendment_notes": null
+    },
+    "75": {
+      "text_en": "Section 75. The State should provide a taxation system which is fair, taking into consideration the proportion of income, and the circumstances and necessities of each person and circumstance.",
+      "amendment_notes": null
+    },
+    "77": {
+      "text_en": "Section 77. The State should promulgate laws only to the extent of necessity and shall repeal or revise laws that are no longer necessary or unsuitable to the circumstance, or which constitute an impediment to or restriction on livelihood without justifiable reason, without delay.",
+      "amendment_notes": "Relevant to BtF's work on law reform advocacy - provides constitutional basis for arguing outdated restrictions should be reformed."
+    }
+  }
+}

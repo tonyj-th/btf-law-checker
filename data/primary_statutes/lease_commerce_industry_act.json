@@ -1,0 +1,42 @@
+{
+  "act_name_en": "Lease of Immovable Property for Commerce and Industry Act",
+  "act_name_th": "พระราชบัญญัติการเช่าอสังหาริมทรัพย์เพื่อพาณิชยกรรมและอุตสาหกรรม",
+  "year_be": "2542",
+  "year_ad": "1999",
+  "source_urls": [
+    "https://www.thailandlawonline.com/translations/property-lease-commerce-industry-by-foreigners",
+    "https://www.samuiforsale.com/law-texts/hire-act-for-commerce-and-industry-by-foreigners.html",
+    "https://www.siam-legal.com/thailand-law/hire-of-immovable-property-for-commerce-and-industry/",
+    "https://faolex.fao.org/docs/pdf/tha161309.pdf"
+  ],
+  "sections": {
+    "3": {
+      "text_en": "Section 3. In this Act:\n'Immovable property' means land, or land with building or other construction thereon, or the construction which is the subject of the superficies right or the right of habitation;\n'Commerce' means any activity related to the production of goods, trade, service, or any other commercial purpose;\n'Industry' means any manufacturing activity using machinery or labor for the purpose of production, assembly, packing, or repair and maintenance of goods.",
+      "amendment_notes": null
+    },
+    "4": {
+      "text_en": "Section 4. The duration of a lease of immovable property under this Act shall exceed thirty years but shall not exceed fifty years. Upon expiration of the lease period, the lessor and the lessee may agree to renew the lease, but the renewed period shall not exceed fifty years from the date the renewal agreement is made.",
+      "amendment_notes": "This is the key provision extending beyond the 30-year CCC limit. Allows leases of 30-50 years, with renewal up to another 50 years."
+    },
+    "5": {
+      "text_en": "Section 5. The lease contract shall be made in writing and registered with the competent official. Failure to register shall render the lease enforceable only for a period of three years.",
+      "amendment_notes": null
+    },
+    "6": {
+      "text_en": "Section 6. The immovable property leased under this Act must be located in one of the following areas:\n(1) An area designated by the law on town and country planning for commercial or industrial purposes;\n(2) An industrial estate zone established under the law on Industrial Estate Authority of Thailand.",
+      "amendment_notes": "Important limitation: this Act only applies to property in designated commercial/industrial zones, NOT residential zones."
+    },
+    "7": {
+      "text_en": "Section 7. The lessee shall have the right to use the leased immovable property as security for the performance of an obligation by way of mortgage.",
+      "amendment_notes": "Allows the leasehold interest to be mortgaged as collateral."
+    },
+    "8": {
+      "text_en": "Section 8. The rights and duties under the lease shall devolve upon the heirs of the lessee. The lessee may sublet or transfer the right of lease to a third person unless otherwise provided by the lease contract.",
+      "amendment_notes": "Unlike CCC Section 549, this Act allows subletting and transfer by default. The lease contract can restrict this."
+    },
+    "9": {
+      "text_en": "Section 9. If the ownership of the leased immovable property is transferred, the transferee shall be substituted for the lessor as to the rights and obligations arising out of the lease.",
+      "amendment_notes": "Mirrors CCC Section 569 - the lease survives transfer of ownership."
+    }
+  }
+}

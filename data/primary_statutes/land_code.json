@@ -1,0 +1,50 @@
+{
+  "act_name_en": "Land Code",
+  "act_name_th": "ประมวลกฎหมายที่ดิน",
+  "year_be": "2497",
+  "year_ad": "1954",
+  "amendments": "As amended by Land Code Amendment Act (No. 8) B.E. 2542 (1999)",
+  "source_urls": [
+    "https://library.siam-legal.com/thai-law/land-act-2497-limitations-of-foreigner-rights-sections-86-96/",
+    "https://www.thailandlawonline.com/thai-real-estate-law/thai-land-law-land-code-act",
+    "https://www.thailandlawonline.com/translations/land-code-amendment-act-1999"
+  ],
+  "sections": {
+    "86": {
+      "text_en": "Section 86. Aliens may acquire land by virtue of the provisions of a treaty giving them the right to own immovable properties, and subject to the provisions of this Code.\nThe extent of land to be acquired shall be within the limit prescribed by the Ministerial Regulation, but the area of land to be used for residential purposes shall not exceed one rai.",
+      "amendment_notes": null
+    },
+    "86/1": {
+      "text_en": "Section 86/1. The provisions prescribing the acquisition of land by an alien by virtue of the provisions of a treaty under the first paragraph of Section 86 shall not apply to an alien who brings in foreign currency for investment in the amount of not less than forty million Baht as prescribed in the Ministerial Regulation, provided that:\n(1) The acquisition of land shall be for the purpose of residential use only;\n(2) The land shall not exceed one rai;\n(3) The land shall be located within the area designated for residential purposes under the Town Planning Act;\n(4) The Minister must give approval.\nIf the alien who has acquired land under this Section fails to comply with the conditions prescribed in the Ministerial Regulation or does not use the land for residential purposes within two years from the date of registration of the acquisition, or uses the land for purposes other than residential, the provisions of Section 94 shall apply mutatis mutandis.",
+      "amendment_notes": "Added by Land Code Amendment Act (No. 8) B.E. 2542 (1999). The 40 million Baht investment threshold has been discussed for potential reduction but remains unchanged as of 2025."
+    },
+    "87": {
+      "text_en": "Section 87. Unless subject to the provisions of Section 86, aliens may acquire land upon the following conditions:\n(1) For carrying on business not prohibited by law, the land may be acquired but shall not exceed the areas prescribed in the Ministerial Regulation;\n(2) For residential purposes of each alien family, the area shall not exceed one rai;\n(3) For charitable or public benefit purposes, the area shall not exceed one half rai;\n(4) For the purpose of a cemetery, the area shall not exceed one half rai per family.",
+      "amendment_notes": null
+    },
+    "93": {
+      "text_en": "Section 93. The Minister shall permit the inheritance of land by an alien who is the lawful heir, but such acquisition, when added to land that is already held, shall not exceed the amount which may be held under Section 87.",
+      "amendment_notes": null
+    },
+    "94": {
+      "text_en": "Section 94. All land which an alien has acquired unlawfully or without permission shall be disposed of by such alien within the time limit prescribed by the Director-General, which shall not be less than one hundred and eighty days nor more than one year. If the land is not disposed of within the time prescribed, the Director-General shall have the power to dispose of it.",
+      "amendment_notes": null
+    },
+    "96": {
+      "text_en": "Section 96. When it appears that any person, including a juristic person, has acquired land as the owner in place of an alien or a juristic person under the provisions of Section 97 and Section 98, the Director-General shall have the authority to dispose of such land, and the provisions of Section 94 shall apply mutatis mutandis.",
+      "amendment_notes": null
+    },
+    "96 bis": {
+      "text_en": "Section 96 bis. The provisions prescribing the acquisition of land by aliens by virtue of the provisions of a treaty under the first paragraph of Section 86 shall not apply to aliens who bring in capital for investment of not less than forty million Baht as prescribed in the Ministerial Regulation, provided that the acquisition of land for the purpose of residence shall not exceed one rai and shall be approved by the Minister.\nIf the alien fails to comply with the conditions prescribed in the Ministerial Regulation, the provisions of Section 94 shall apply mutatis mutandis.",
+      "amendment_notes": "Added by Land Code Amendment Act (No. 8) B.E. 2542 (1999). Note: Section 96 bis and Section 86/1 address overlapping subject matter; 86/1 provides the more detailed conditions."
+    },
+    "97": {
+      "text_en": "Section 97. The following juristic persons shall be deemed to be aliens for the purpose of this Chapter:\n(1) A limited company or a public limited company of which the shares representing more than forty-nine percent of the total shares are held by aliens or in which more than half of the shareholders are aliens, even though such aliens hold less than half of the total shares;\n(2) A registered ordinary partnership or a limited partnership of which the capital contributed by aliens constitutes more than forty-nine percent of the total capital;\n(3) Societies, cooperatives, incorporated bodies or other organizations registered in Thailand of which the members or participants constituting more than half of the total members are aliens.",
+      "amendment_notes": null
+    },
+    "98": {
+      "text_en": "Section 98. Juristic persons formed under foreign law shall be deemed to be aliens for the purpose of this Code.",
+      "amendment_notes": null
+    }
+  }
+}

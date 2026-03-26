@@ -459,12 +459,18 @@ async def verify_single_citation(citation: dict, index: int, total: int, job_id:
     if kb and kb.is_available() and citation.get("act_name") and citation.get("section"):
         exact = kb.exact_lookup(citation["act_name"], str(citation["section"]))
         if exact:
-            job["log"].append(f"  → Stage 1: Exact KB match found")
-            result = await _verify_against_kb(citation, exact["thai_text"], exact["act_name_thai"], exact["section"])
+            match_type = exact.get("match_type", "exact")
+            kb_text = exact.get("english_text") or exact.get("thai_text", "")
+            job["log"].append(f"  → Stage 1: {match_type} match found ({exact.get('act_name_en', exact.get('act_name_thai', ''))})")
+            result = await _verify_against_kb(citation, kb_text, exact.get("act_name_en") or exact.get("act_name_thai", ""), exact["section"])
             if result and result.get("confidence", 0) >= 60:
                 result["verification_tier"] = "local_kb"
+                if match_type == "primary_statute":
+                    result["verification_tier"] = "primary_statute"
+                    result["source_urls"] = exact.get("source_urls", [])
+                    result["amendment_notes_kb"] = exact.get("amendment_notes", "")
                 await cache_set(db, cache_key, citation, result)
-                job["log"].append(f"  → {result['status']} ({result.get('confidence', '?')}%) [Local KB]")
+                job["log"].append(f"  → {result['status']} ({result.get('confidence', '?')}%) [Local KB - {match_type}]")
                 return result
             job["log"].append(f"  → Stage 1: Low confidence ({result.get('confidence', 0)}%), trying next stage")
 

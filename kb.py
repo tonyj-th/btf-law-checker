@@ -24,7 +24,8 @@ class LawKB:
 
     def __init__(self, kb_dir: str):
         self.kb_dir = Path(kb_dir)
-        self._section_index: dict = {}
+        self._section_index: dict = {}       # Thai gazette index
+        self._primary_statutes: dict = {}    # English primary statute index (priority)
         self._act_mapping: dict = {}
         self._meta: dict = {}
         self._chroma_collection = None
@@ -57,11 +58,28 @@ class LawKB:
                 logger.error(f"KB: Failed to load bundled index: {e}")
                 return
 
-        # Build reverse lookup: short Thai act name → full index key(s)
-        # The dataset uses long gazette titles, but our mapping has short names
+        # ── Load PRIMARY STATUTES (English translations, highest priority) ──
+        primary_dir = Path(__file__).parent / "data" / "primary_statutes"
+        if primary_dir.exists():
+            total_sections = 0
+            for statute_file in primary_dir.glob("*.json"):
+                try:
+                    with open(statute_file, "r", encoding="utf-8") as f:
+                        statute = json.load(f)
+                    act_name = statute["act_name_en"].lower()
+                    self._primary_statutes[act_name] = statute
+                    total_sections += len(statute.get("sections", {}))
+                    # Also register aliases
+                    if statute.get("act_name_th"):
+                        self._primary_statutes[statute["act_name_th"]] = statute
+                except Exception as e:
+                    logger.error(f"KB: Failed to load primary statute {statute_file.name}: {e}")
+            logger.info(f"KB: Loaded {len([f for f in primary_dir.glob('*.json')])} primary statutes with {total_sections} sections")
+
+        # Build reverse lookup for gazette index
         self._thai_to_index_keys = {}
         for full_key in self._section_index:
-            self._thai_to_index_keys[full_key] = full_key  # exact match
+            self._thai_to_index_keys[full_key] = full_key
         logger.info(f"KB: Built reverse lookup for {len(self._thai_to_index_keys)} index keys")
 
         # Load metadata
@@ -104,10 +122,10 @@ class LawKB:
             except Exception as e:
                 logger.warning(f"KB: Cohere not available: {e}")
 
-        # KB is available if we have at least the section index
-        self._available = bool(self._section_index)
+        # KB is available if we have primary statutes OR the section index
+        self._available = bool(self._section_index) or bool(self._primary_statutes)
         if self._available:
-            logger.info("KB: Knowledge base is AVAILABLE")
+            logger.info(f"KB: Knowledge base is AVAILABLE (primary={len(self._primary_statutes)} gazette={len(self._section_index)})")
         else:
             logger.warning("KB: Knowledge base is NOT available")
 
@@ -162,48 +180,101 @@ class LawKB:
 
         return None
 
+    def _lookup_primary(self, act_name_en: str, section: str) -> Optional[dict]:
+        """Check primary statutes (English translations) first."""
+        if not self._primary_statutes:
+            return None
+
+        normalized = act_name_en.strip().lower()
+
+        # Try direct match
+        statute = self._primary_statutes.get(normalized)
+
+        # Try stripping B.E. year
+        if not statute:
+            import re
+            stripped = re.sub(r'\s*b\.?e\.?\s*\d{4}', '', normalized).strip()
+            statute = self._primary_statutes.get(stripped)
+
+        # Try partial match
+        if not statute:
+            for key, val in self._primary_statutes.items():
+                if isinstance(val, dict) and val.get("act_name_en"):
+                    if normalized in key or key in normalized:
+                        statute = val
+                        break
+                    act_en_lower = val["act_name_en"].lower()
+                    if normalized in act_en_lower or act_en_lower in normalized:
+                        statute = val
+                        break
+
+        if not statute or "sections" not in statute:
+            return None
+
+        sections = statute["sections"]
+        section_norm = str(section).strip()
+
+        # Direct section match
+        if section_norm in sections:
+            sec = sections[section_norm]
+            text = sec.get("text_en", sec.get("text_th", ""))
+            return {
+                "thai_text": text,
+                "english_text": sec.get("text_en", ""),
+                "act_name_thai": statute.get("act_name_th", ""),
+                "act_name_en": statute.get("act_name_en", ""),
+                "section": section_norm,
+                "match_type": "primary_statute",
+                "amendment_notes": sec.get("amendment_notes", ""),
+                "source_urls": statute.get("source_urls", []),
+            }
+
+        # Try fuzzy section match (e.g. "19bis" vs "19 bis", "96bis" vs "96 bis")
+        for sec_key, sec_data in sections.items():
+            if sec_key.replace(" ", "").lower() == section_norm.replace(" ", "").lower():
+                text = sec_data.get("text_en", sec_data.get("text_th", ""))
+                return {
+                    "thai_text": text,
+                    "english_text": sec_data.get("text_en", ""),
+                    "act_name_thai": statute.get("act_name_th", ""),
+                    "act_name_en": statute.get("act_name_en", ""),
+                    "section": sec_key,
+                    "match_type": "primary_statute",
+                    "amendment_notes": sec_data.get("amendment_notes", ""),
+                    "source_urls": statute.get("source_urls", []),
+                }
+
+        return None
+
     def exact_lookup(self, act_name_en: str, section: str) -> Optional[dict]:
         """
         Stage 1: Look up an exact act name + section number.
+        Checks primary English statutes first, then Thai gazette index.
         Returns dict with thai_text, act_name_thai, section if found.
         """
         if not self._available or not act_name_en:
             return None
 
+        # ── Priority 1: Primary statutes (English translations) ──
+        primary = self._lookup_primary(act_name_en, section)
+        if primary:
+            return primary
+
+        # ── Priority 2: Thai gazette index ──
         thai_name = self._resolve_act_name(act_name_en)
         if not thai_name:
             return None
 
-        # Search through index keys for a match
-        # Dataset uses full gazette titles (long), our mapping has short Thai names
-        # Strategy: find any index key that CONTAINS the short Thai act name
         matched_act = None
 
-        # 1. Exact key match
         if thai_name in self._section_index:
             matched_act = thai_name
 
-        # 2. Substring match — short Thai name inside long gazette title
         if not matched_act:
             for index_key in self._section_index:
                 if thai_name in index_key:
                     matched_act = index_key
                     break
-
-        # 3. Try matching individual Thai words (at least 3 chars) for fuzzy gazette titles
-        if not matched_act and len(thai_name) > 6:
-            # Split Thai name into segments and find keys containing most segments
-            best_match = None
-            best_score = 0
-            for index_key in self._section_index:
-                # Count how many chars from thai_name appear as substring
-                if any(thai_name[i:i+6] in index_key for i in range(0, len(thai_name) - 5, 3)):
-                    score = sum(1 for i in range(0, len(thai_name) - 5, 3) if thai_name[i:i+6] in index_key)
-                    if score > best_score:
-                        best_score = score
-                        best_match = index_key
-            if best_match and best_score >= 2:
-                matched_act = best_match
 
         if not matched_act:
             return None
@@ -286,11 +357,21 @@ class LawKB:
 
     def status(self) -> dict:
         """Return KB status for the /api/kb-status endpoint."""
+        primary_acts = len(set(
+            v["act_name_en"] for v in self._primary_statutes.values()
+            if isinstance(v, dict) and "act_name_en" in v
+        ))
+        primary_sections = sum(
+            len(v.get("sections", {})) for v in self._primary_statutes.values()
+            if isinstance(v, dict) and "sections" in v
+        )
         return {
             "available": self._available,
             "semantic_search": self.has_semantic_search(),
             "act_count": self.act_count,
             "section_count": self.section_count,
+            "primary_acts": primary_acts,
+            "primary_sections": primary_sections,
             "source": self.source,
             "build_date": self.build_date,
             "vector_count": self._chroma_collection.count() if self._chroma_collection else 0,

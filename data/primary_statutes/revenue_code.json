@@ -1,0 +1,52 @@
+{
+  "act_name_en": "Revenue Code - Property Transfer Taxes",
+  "act_name_th": "ประมวลรัษฎากร",
+  "year_be": "2481",
+  "year_ad": "1938",
+  "amendments": "As amended through multiple amendment acts",
+  "source_urls": [
+    "https://www.rd.go.th/english/37753.html",
+    "https://www.thailandlawonline.com/revenue-code/specific-business-tax-in-thai-tax-law",
+    "https://www.thailandlawonline.com/revenue-code/stamp-duty-in-thai-tax-law",
+    "https://www.samuiforsale.com/law-texts/the-thailand-revenue-code.html",
+    "https://www.thailandlawonline.com/article-older-archive/immovable-property-conveyancing-tax"
+  ],
+  "sections": {
+    "91/1": {
+      "text_en": "Section 91/1. In this Chapter:\n'Gross receipts' means any money, property, consideration, service charge, or any other benefit of pecuniary value received or receivable, in each tax month, from or as a consequence of operating the business.",
+      "amendment_notes": null
+    },
+    "91/2": {
+      "text_en": "Section 91/2. The following businesses carried on in Thailand shall be subject to specific business tax:\n(1) Banking;\n(2) Finance, securities, and credit foncier business;\n(3) Life insurance;\n(4) Pawnbroking;\n(5) Business with regular transactions similar to commercial banks;\n(6) Sale of immovable property in a commercial manner or for profit.\nFor the purposes of (6), 'sale of immovable property in a commercial manner or for profit' means a sale by any person who is not a developer, which includes an immovable property acquired and sold within five years from the date of acquisition, as prescribed by the Royal Decree.",
+      "amendment_notes": "The 5-year holding period is critical: properties sold within 5 years of acquisition are subject to SBT. Properties held for 5+ years are exempt from SBT and subject only to stamp duty."
+    },
+    "91/5": {
+      "text_en": "Section 91/5. The tax base for the computation of specific business tax shall be the gross receipts from the operation of the business before deducting any expenses.\nFor the sale of immovable property under Section 91/2(6), the tax base shall be the gross receipts, being the higher of the appraised value of the property by the Land Department or the actual sale price.",
+      "amendment_notes": null
+    },
+    "91/6": {
+      "text_en": "Section 91/6. The rate of specific business tax shall be as prescribed in the Schedule annexed to this Chapter.\nFor the sale of immovable property under Section 91/2(6), the rate of specific business tax is 3.0 percent of the tax base.\nIn addition, a municipal tax surcharge of 10% of the specific business tax amount is applicable, bringing the effective rate to 3.3%.",
+      "amendment_notes": "Effective SBT rate on property sales = 3.3% (3.0% SBT + 0.3% municipal surcharge)."
+    },
+    "91/7": {
+      "text_en": "Section 91/7. A person subject to specific business tax shall file a return in the form prescribed by the Director-General together with the tax due, if any, at the Area Revenue Office within fifteen days from the end of each tax month.\nFor the sale of immovable property under Section 91/2(6), the person shall file the return and pay the tax at the time of registering the rights and juristic acts at the Land Department.",
+      "amendment_notes": "SBT on property transfers is collected at the Land Department at the time of transfer registration, not separately."
+    },
+    "104": {
+      "text_en": "Section 104. Instruments chargeable with stamp duty as specified in the Stamp Duty Schedule annexed to this Code shall be duly stamped at the rates prescribed therein.",
+      "amendment_notes": null
+    },
+    "stamp_duty_schedule_item_28": {
+      "text_en": "Stamp Duty Schedule - Item 28: Transfer of ownership of or possessory right over immovable property:\nDuty rate: For every 200 Baht or fraction thereof of the price or appraised value (whichever is higher) - 1 Baht.\nEffective rate: 0.5% of the value.\nNote: If specific business tax under Section 91/2(6) is applicable, stamp duty is not payable. However, if stamp duty has been paid, a refund may be claimed within six months.",
+      "amendment_notes": "Stamp duty (0.5%) and SBT (3.3%) are mutually exclusive - only one applies depending on the holding period."
+    },
+    "transfer_fee_note": {
+      "text_en": "Transfer Fee (Land Department Fee):\nThe transfer fee is not part of the Revenue Code but is prescribed under the Land Code and ministerial regulations. The standard transfer fee is 2% of the appraised value of the property as assessed by the Land Department.\nSpecial reduced rates apply in certain cases:\n- Transfer between ascendants and descendants (parents and children): 0.01%\n- Government may announce temporary reductions for economic stimulus purposes.\nThe transfer fee is collected by the Land Department at the time of registration of the transfer.",
+      "amendment_notes": "The 2% transfer fee is separate from all taxes (SBT, stamp duty, income tax). Total transfer costs for a property sale within 5 years = 2% transfer fee + 3.3% SBT + withholding income tax. For sales after 5 years = 2% transfer fee + 0.5% stamp duty + withholding income tax."
+    },
+    "withholding_tax_note": {
+      "text_en": "Withholding Income Tax on Property Transfers:\nThe Revenue Code requires withholding of income tax at the time of property transfer registration. The calculation method differs for individuals and juristic persons:\n- For individual sellers: calculated on a progressive scale based on the appraised value and the number of years of ownership (cost deduction based on a published schedule, then applied to the income tax table);\n- For juristic person sellers: withheld at 1% of the appraised value or the sale price, whichever is higher.\nThis tax is collected by the Land Department at the time of transfer registration.",
+      "amendment_notes": "Withholding tax is in addition to transfer fees and SBT/stamp duty."
+    }
+  }
+}

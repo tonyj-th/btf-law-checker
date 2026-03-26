@@ -1,0 +1,46 @@
+{
+  "act_name_en": "Foreign Business Act",
+  "act_name_th": "พระราชบัญญัติการประกอบธุรกิจของคนต่างด้าว",
+  "year_be": "2542",
+  "year_ad": "1999",
+  "source_urls": [
+    "https://library.siam-legal.com/foreign-business-act/",
+    "https://www.boi.go.th/upload/Foreign%20Business%20Act_5dd766122ff27.pdf",
+    "https://investmentpolicy.unctad.org/investment-laws/laws/40/thailand-foreign-business-act",
+    "https://www.thailandlawonline.com/thai-company-and-foreign-business-law/foreign-business-law-thailand"
+  ],
+  "sections": {
+    "4": {
+      "text_en": "Section 4. In this Act:\n'Foreigner' means:\n(1) A natural person not of Thai nationality;\n(2) A juristic person not registered in Thailand;\n(3) A juristic person registered in Thailand having the following characteristics:\n  (a) Having half or more of the juristic person's capital shares held by persons under (1) or (2), or a juristic person having persons under (1) or (2) investing with a value of half or more of the total capital of the juristic person;\n(4) A limited partnership or a registered ordinary partnership having the person under (1) as the managing partner or manager;\n(5) A juristic person registered in Thailand having half or more of its capital shares held by persons under (1), (2), (3), or (4), or a juristic person having persons under (1), (2), (3), or (4) investing with the value of half or more of its total capital.\nFor the purposes of this definition, shares of a limited company represented by share certificates issued to bearers shall be deemed to be shares of foreigners, unless otherwise provided by the Ministerial Regulation.",
+      "amendment_notes": null
+    },
+    "5": {
+      "text_en": "Section 5. The provisions of this Act shall not apply to the business operation of aliens under the law on investment promotion or under the law on industrial estate of Thailand in so far as it concerns the promoted activities or activities related to the establishment and operation of an industrial estate or activities in an industrial estate.",
+      "amendment_notes": null
+    },
+    "7": {
+      "text_en": "Section 7. A foreigner having a treaty to which Thailand is a party or has an obligation under which rights have been granted to operate business of a foreigner shall be governed by the provisions of such treaty.",
+      "amendment_notes": null
+    },
+    "8": {
+      "text_en": "Section 8. Subject to Section 6, Section 7, Section 10, and Section 12:\n(1) No foreigner shall operate the businesses not permitted for foreigners with special reasons as prescribed in List One annexed to this Act;\n(2) No foreigner shall operate the businesses related to national safety or security, or businesses having an impact on arts, culture, traditions, customs, and folk handicrafts, or businesses having an impact on natural resources or the environment as prescribed in List Two annexed to this Act, unless permission is granted by the Minister with the approval of the Cabinet;\n(3) No foreigner shall operate the businesses in which Thai nationals are not yet ready to compete with foreigners as prescribed in List Three annexed to this Act, unless permission is granted by the Director-General with the approval of the Foreign Business Committee.",
+      "amendment_notes": null
+    },
+    "15": {
+      "text_en": "Section 15. A foreigner which is a juristic person may operate any business specified in List Two only where not less than forty percent of its shares are held by Thai nationals or juristic persons which are not foreigners under this Act, and the number of Thai directors shall not be less than two-fifths of the total number of directors.\nThe Minister, with the approval of the Cabinet, may reduce the proportion of shares specified in paragraph one, but such reduction shall not be less than twenty-five percent.",
+      "amendment_notes": null
+    },
+    "list_one": {
+      "text_en": "LIST ONE: Businesses not permitted for foreigners to operate due to special reasons:\n(1) Newspaper business, radio broadcasting or television station business;\n(2) Rice farming, upland farming, or horticulture;\n(3) Animal husbandry;\n(4) Forestry and wood fabrication from natural forest;\n(5) Fishery for marine animals in Thai waters and within the specific economic zone of Thailand;\n(6) Extraction of Thai medicinal herbs;\n(7) Trading and auctioning of antique objects or objects of historical value of the country;\n(8) Making or casting Buddha images and alms bowls;\n(9) Land trading.",
+      "amendment_notes": "List One businesses are absolutely prohibited to foreigners. No exceptions or permits available."
+    },
+    "list_two": {
+      "text_en": "LIST TWO: Businesses related to national safety or security, or affecting arts, culture, traditions, customs, and folk handicrafts, or natural resources and the environment:\nGroup 1 - National Safety or Security:\n(1) Production, selling, repairing, and maintenance of firearms, ammunition, gunpowder, and explosives;\n(2) Domestic transportation by land, water, or air, including domestic airline business;\n(3) Trading of antiques or art objects which are Thai works of art, handicraft, or antiques;\nGroup 2 - Arts and Culture, Traditions, and Folk Handicrafts:\n(1) Trading of Thai antiques or art objects;\n(2) Production of carved wood;\n(3) Silkworm raising, production of Thai silk yarn, weaving of Thai silk, or Thai silk pattern printing;\n(4) Production of Thai musical instruments;\n(5) Production of goldware, silverware, nielloware, bronzeware, or lacquerware;\n(6) Production of crockery or earthenware of Thai art and culture;\nGroup 3 - Natural Resources and Environment:\n(1) Manufacturing of sugar from sugarcane;\n(2) Salt farming, including underground salt;\n(3) Production of rock salt;\n(4) Mining, including rock blasting or crushing;\n(5) Wood fabrication for furniture and utensils.",
+      "amendment_notes": "Foreigners may operate List Two businesses only with permission from the Minister with Cabinet approval, and subject to the Thai shareholding requirements in Section 15."
+    },
+    "list_three": {
+      "text_en": "LIST THREE: Businesses in which Thai nationals are not yet ready to compete with foreigners:\n(1) Rice milling and production of flour from rice and field crops;\n(2) Fishery, specifically marine aquaculture;\n(3) Forestry from planted forests;\n(4) Production of plywood, veneer board, chipboard, or hardboard;\n(5) Production of lime;\n(6) Accounting service business;\n(7) Legal service business;\n(8) Architecture service business;\n(9) Engineering service business;\n(10) Construction, except construction of infrastructure for public utilities or transportation requiring special tools, machinery, technology, or construction expertise with foreigners having minimum capital of 500 million Baht or more;\n(11) Brokerage or agency business, except brokerage or agency in securities or agricultural futures trading or financial instruments;\n(12) Auctioning;\n(13) Internal trade connected with total minimum capital of less than one hundred million Baht or less than the total minimum capital of each shop of less than twenty million Baht;\n(14) Retailing of all types of goods having total minimum capital of less than one hundred million Baht;\n(15) Wholesaling of all types of goods having total minimum capital of less than one hundred million Baht;\n(16) Advertising business;\n(17) Hotel business, excluding hotel management service;\n(18) Guide service;\n(19) Selling of food or beverages;\n(20) Plant breeding and propagation business;\n(21) Other service businesses, except service businesses as prescribed in the Ministerial Regulation.",
+      "amendment_notes": "Foreigners may operate List Three businesses with permission from the Director-General with the approval of the Foreign Business Committee. List Three item (21) is a catch-all that captures most service businesses unless specifically exempted by Ministerial Regulation."
+    }
+  }
+}

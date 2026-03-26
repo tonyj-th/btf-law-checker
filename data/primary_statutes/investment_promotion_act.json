@@ -1,0 +1,54 @@
+{
+  "act_name_en": "Investment Promotion Act",
+  "act_name_th": "พระราชบัญญัติส่งเสริมการลงทุน",
+  "year_be": "2520",
+  "year_ad": "1977",
+  "amendments": "As amended by Investment Promotion Act (No. 2) B.E. 2534 (1991), (No. 3) B.E. 2544 (2001), and (No. 4) B.E. 2560 (2017)",
+  "source_urls": [
+    "https://www.boi.go.th/english/download/boi_forms/proact_eng.pdf",
+    "http://web.krisdika.go.th/data/outsitedata/outsite21/file/INVESTMENT_PROMOTION_ACT_B.E._2520.pdf",
+    "https://www.thailawforum.com/database1/investment-promotion-act.html"
+  ],
+  "sections": {
+    "4": {
+      "text_en": "Section 4. In this Act:\n'Investment promotion' means the promotion of investment in any of the activities designated by the Board;\n'Promoted person' means a person to whom a promotion certificate has been granted;\n'Promotion certificate' means a certificate granted by the Board to any person for the purpose of investment promotion;\n'Board' means the Board of Investment.",
+      "amendment_notes": null
+    },
+    "16": {
+      "text_en": "Section 16. The Board shall have the power and duty to designate and announce the categories of activities eligible for investment promotion, the conditions to be imposed on each category, and the rights and benefits to be granted.",
+      "amendment_notes": null
+    },
+    "24": {
+      "text_en": "Section 24. A promoted person who is a foreigner shall be permitted to bring into the Kingdom skilled workers and experts to work in the investment promoted activity, together with their spouses and dependents, and shall be permitted to stay in the Kingdom for the duration as the Board deems appropriate.",
+      "amendment_notes": null
+    },
+    "27": {
+      "text_en": "Section 27. A promoted person shall be permitted to own land for carrying on the promoted activity to such extent as the Board deems appropriate, notwithstanding the provisions of any other law.\nThe ownership of land under paragraph one shall be subject to the following conditions:\n(1) The land must be used for the purposes specified in the promotion certificate;\n(2) The promoted person must maintain a paid-up registered capital of not less than the amount prescribed in the Ministerial Regulation;\n(3) Other conditions as prescribed by the Board.",
+      "amendment_notes": "Key provision allowing BOI-promoted companies (including foreign-majority owned) to own land. Standard conditions require minimum 50 million Baht registered capital for land exceeding 1 rai."
+    },
+    "28": {
+      "text_en": "Section 28. A promoted person may be granted an exemption or reduction of import duties on machinery as approved by the Board.",
+      "amendment_notes": null
+    },
+    "29": {
+      "text_en": "Section 29. A promoted person may be granted an exemption or reduction of import duties on raw or essential materials imported for use in production for export.",
+      "amendment_notes": null
+    },
+    "31": {
+      "text_en": "Section 31. A promoted person may be granted an exemption of juristic person income tax on the net profit derived from the promoted activity for a period of not exceeding eight years from the date on which revenue is first derived from such activity.\nThe income so exempted under paragraph one shall not exceed the amount of investment excluding the cost of land and working capital, unless such promoted activity is in a special promoted zone or is an activity of special importance and beneficial to the country, in which case the Board may allow the exemption to exceed the said amount as it deems appropriate.",
+      "amendment_notes": "Amended by Investment Promotion Act (No. 4) B.E. 2560 (2017). The 8-year maximum for income tax exemption remains, but conditions for exceeding the investment cap were relaxed."
+    },
+    "31/1": {
+      "text_en": "Section 31/1. After the expiration of the income tax exemption period under Section 31, a promoted person may be granted a reduction of fifty percent of the normal rate of juristic person income tax on the net profit derived from the promoted activity for a period of not exceeding five years.",
+      "amendment_notes": null
+    },
+    "36": {
+      "text_en": "Section 36. If the Board considers that any promoted person fails to comply with the conditions imposed, the Board may revoke or reduce the rights and benefits granted or order the promoted person to comply with such conditions within a specified period.\nIf the promoted person fails to comply within the specified period, the Board may revoke the promotion certificate.",
+      "amendment_notes": null
+    },
+    "36/1": {
+      "text_en": "Section 36/1. In the case where the promotion certificate is revoked, if the promoted person has acquired ownership of land under Section 27, the promoted person shall dispose of such land within one year from the date of revocation. If the land is not disposed of within such period, the Director-General of the Land Department shall have the power to dispose of it, and the provisions of Section 94 of the Land Code shall apply mutatis mutandis.",
+      "amendment_notes": "Critical provision: loss of BOI status triggers mandatory land disposal within 1 year."
+    }
+  }
+}

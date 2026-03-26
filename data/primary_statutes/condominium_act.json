@@ -1,0 +1,51 @@
+{
+  "act_name_en": "Condominium Act",
+  "act_name_th": "พระราชบัญญัติอาคารชุด",
+  "year_be": "2522",
+  "year_ad": "1979",
+  "amendments": "As amended by Condominium Act (No. 4) B.E. 2551 (2008)",
+  "source_urls": [
+    "https://library.siam-legal.com/condominium-act-b-e-2522-1979-as-amended-2008/",
+    "https://library.siam-legal.com/thai-law/condominium-act-ownership-sections-19-1-19-11/",
+    "https://www.samuiforsale.com/law-texts/new-thailand-condominium-act-2008.html",
+    "https://www.thailandlawonline.com/article-older-archive/foreign-ownership-and-condominium-laws"
+  ],
+  "sections": {
+    "17": {
+      "text_en": "Section 17. An apartment owner shall have a right of co-ownership in common property proportionally to the ratio of the area of the apartment owned to the total area of all apartments in such condominium, unless the by-laws provide otherwise.",
+      "amendment_notes": null
+    },
+    "18": {
+      "text_en": "Section 18. The apartment owner shall have a right in the common property and may not demand partition of the common property.",
+      "amendment_notes": null
+    },
+    "19": {
+      "text_en": "Section 19. Aliens or juristic persons as specified in Section 97 and Section 98 of the Land Code who are qualified under Section 19 bis may own apartments in the condominium.",
+      "amendment_notes": "Amended by Condominium Act (No. 4) B.E. 2551 (2008)"
+    },
+    "19 bis": {
+      "text_en": "Section 19 bis. Aliens and juristic persons deemed aliens by law may hold ownership of an apartment if they are the following:\n(1) Aliens permitted to have residence in the Kingdom under the Immigration law;\n(2) Aliens permitted to enter the Kingdom under the Investment Promotion law;\n(3) Juristic persons as provided in Sections 97 and 98 of the Land Code and registered as juristic persons under Thai law;\n(4) Juristic persons which are aliens under the Announcement of the National Executive Council No. 281 dated November 24, B.E. 2515 and which have obtained a promotion certificate under the Investment Promotion law;\n(5) Aliens or juristic persons deemed aliens by law who have brought in foreign currency into the Kingdom, or withdrawn money from a Thai Baht account of a person having residence outside the Kingdom, or withdrawn money from a foreign currency account.",
+      "amendment_notes": "Added by Condominium Act (No. 4) B.E. 2551 (2008). Previously Section 19 contained this content."
+    },
+    "19 ter": {
+      "text_en": "Section 19 ter. The ratio of floor space of all apartments in the condominium owned by persons under Section 19 bis shall altogether not exceed forty-nine percent of the total floor space of all apartments in such condominium at the time of the registration of the condominium under Section 6.\nIf the condominium is near any boundary of the Kingdom or in any area that affects national security, the ratio of floor space under paragraph one may be prescribed by the Minister in a Ministerial Regulation to be less than the rate prescribed in paragraph one.\nIf the apartment ownership ratio of persons under Section 19 bis reaches the limit prescribed in paragraph one or paragraph two, the registration of apartment ownership for persons under Section 19 bis shall not be accepted.",
+      "amendment_notes": "Added by Condominium Act (No. 4) B.E. 2551 (2008)"
+    },
+    "19 quater": {
+      "text_en": "Section 19 quater. A juristic person under Section 19 bis (5) shall produce evidence of bringing in foreign currency into the Kingdom or evidence of withdrawal of money from a Thai Baht account of persons having residence outside the Kingdom or evidence of withdrawal of money from a foreign currency account in an amount not less than the price of the apartment to be purchased.",
+      "amendment_notes": "Added by Condominium Act (No. 4) B.E. 2551 (2008)"
+    },
+    "19 quinque": {
+      "text_en": "Section 19 quinque. Any person who acquired ownership of an apartment while being of Thai nationality and subsequently lost Thai nationality or whose Thai nationality has been revoked shall give notification to the competent official within sixty days from the date of loss of Thai nationality and shall dispose of all apartments owned within one year from the date of loss of Thai nationality.\nIf the apartment is not disposed of within the time prescribed, the provisions of Section 19 octo shall apply mutatis mutandis.",
+      "amendment_notes": "Added by Condominium Act (No. 4) B.E. 2551 (2008)"
+    },
+    "19 sexto": {
+      "text_en": "Section 19 sexto. If persons under Section 19 bis acquire ownership of an apartment by inheritance and such acquisition when added to that already owned exceeds the ratio prescribed in Section 19 ter, such person shall dispose of the apartment in the portion that exceeds the prescribed ratio within one year from the date of acquisition.\nIf the apartment is not disposed of within the time prescribed, the provisions of Section 19 octo shall apply mutatis mutandis.",
+      "amendment_notes": "Added by Condominium Act (No. 4) B.E. 2551 (2008)"
+    },
+    "19 octo": {
+      "text_en": "Section 19 octo. If the apartment is not disposed of within the time prescribed in Section 19 quinque or Section 19 sexto, the Director-General shall have the power to dispose of such apartment in accordance with the rules, procedure and conditions prescribed in the Ministerial Regulation. The proceeds from the disposal, after deducting expenses, shall be returned to the owner.",
+      "amendment_notes": "Added by Condominium Act (No. 4) B.E. 2551 (2008)"
+    }
+  }
+}

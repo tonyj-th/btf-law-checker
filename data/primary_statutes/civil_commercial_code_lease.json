@@ -1,0 +1,69 @@
+{
+  "act_name_en": "Civil and Commercial Code - Book III Title IV: Hire of Property",
+  "act_name_th": "ประมวลกฎหมายแพ่งและพาณิชย์ ลักษณะ 4 เช่าทรัพย์",
+  "year_be": "2468",
+  "year_ad": "1925",
+  "source_urls": [
+    "https://www.thailandlawonline.com/civil-and-commercial-code/537-571-lease-or-hire-of-property-laws",
+    "https://library.siam-legal.com/thai-law/civil-and-commercial-code-exchange-section-537-545/",
+    "https://www.samuiforsale.com/law-texts/thailand-civil-code-part-2.html"
+  ],
+  "sections": {
+    "537": {
+      "text_en": "Section 537. A hire of property is a contract whereby a person, called the letter, agrees to let another person, called the hirer, have the use or benefit of a property for a limited period of time, and the hirer agrees to pay a rent therefor.",
+      "amendment_notes": null
+    },
+    "538": {
+      "text_en": "Section 538. A hire of immovable property is not enforceable by action unless there be some written evidence signed by the party liable. If the hire is made for a period exceeding three years or for the lifetime of the letter or the hirer, it is enforceable only for a period of three years unless it is made in writing and registered by the competent official.",
+      "amendment_notes": "This is the key section limiting lease duration. A lease exceeding 3 years MUST be in writing and registered at the Land Department to be enforceable beyond 3 years. Maximum enforceable lease is 30 years per Section 540."
+    },
+    "539": {
+      "text_en": "Section 539. The hire may be made for a period not exceeding thirty years. If it is made for a longer period, such period shall be reduced to thirty years. The provisions of this Section shall not apply to hires of immovable property for commerce or industry under the law on lease of immovable property for commerce and industry.",
+      "amendment_notes": "This establishes the 30-year maximum. Exception: the Lease of Immovable Property for Commerce and Industry Act B.E. 2542 allows up to 50 years."
+    },
+    "540": {
+      "text_en": "Section 540. A hire may be renewed for a period not exceeding thirty years from the time of renewal.",
+      "amendment_notes": "Renewal clauses are common in Thai leases, but each renewal term cannot exceed 30 years. Thai Supreme Court has ruled that an obligation to renew contained in the original lease is not automatically enforceable."
+    },
+    "541": {
+      "text_en": "Section 541. A person letting a property is bound to deliver it to the hirer in a condition fit for the use for which it is hired.",
+      "amendment_notes": null
+    },
+    "542": {
+      "text_en": "Section 542. The letter is bound, during the period of the hire, to keep the property in a proper condition for the use for which it is hired.",
+      "amendment_notes": null
+    },
+    "544": {
+      "text_en": "Section 544. The letter is liable for damage arising from any defect of the property hired which existed at the time of delivery or which occurs thereafter, unless he proves that such defect was not due to his fault.",
+      "amendment_notes": null
+    },
+    "545": {
+      "text_en": "Section 545. If the hirer discovers a defect in the property hired for which the letter is liable, or if proceedings are taken by a third person to establish a right upon the property, or if the property is wholly or partly destroyed or damaged so as to require repair, the hirer must without delay give notice thereof to the letter, unless the letter already knows of such circumstance.",
+      "amendment_notes": null
+    },
+    "546": {
+      "text_en": "Section 546. The hirer must use the property hired only for the purpose determined by the contract, or, in the absence of such determination, according to the purpose to which the property would normally be applied.",
+      "amendment_notes": null
+    },
+    "549": {
+      "text_en": "Section 549. The hirer is not entitled to sublet or transfer his rights to a third person, unless with the consent of the letter.",
+      "amendment_notes": null
+    },
+    "552": {
+      "text_en": "Section 552. On the expiration of the period of the hire, the hirer is bound to return the property to the letter.",
+      "amendment_notes": null
+    },
+    "556": {
+      "text_en": "Section 556. If the rent of an immovable property is payable at intervals of one month or more, either party may give notice to terminate the hire at the end of any period of payment. But such notice must be given at least one payment period in advance, and need not exceed two months in advance.",
+      "amendment_notes": null
+    },
+    "569": {
+      "text_en": "Section 569. A hire of immovable property is not terminated by the transfer of the ownership of the property hired. The transferee is substituted for the letter as to the rights and obligations arising out of the hire.",
+      "amendment_notes": "Important: A registered lease survives transfer of ownership. This protects lessees (including foreign lessees) when the freehold owner sells."
+    },
+    "570": {
+      "text_en": "Section 570. If the provisions of Section 538 have not been complied with, the transferee of the property hired shall not be bound by the hire.",
+      "amendment_notes": "If a lease is NOT registered, a new owner who buys the property is not bound by the lease agreement."
+    }
+  }
+}
