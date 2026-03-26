@@ -527,7 +527,8 @@ async def run_job(job_id: str, file_bytes: bytes, filename: str):
 
 @app.get("/health")
 async def health():
-    return {"status": "ok"}
+    key = os.environ.get("ANTHROPIC_API_KEY", "")
+    return {"status": "ok", "key_set": bool(key), "key_prefix": key[:10] + "..." if key else "EMPTY", "env_keys": [k for k in os.environ if "ANTHRO" in k.upper()]}
 
 
 @app.get("/")
