@@ -27,7 +27,7 @@ from pydantic import BaseModel
 # ─── Config ───────────────────────────────────────────────────────────────────
 
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
-MODEL = "claude-sonnet-4-6-20250514"
+MODEL = "claude-sonnet-4-20250514"
 CHUNK_SIZE = 10_000
 CHUNK_OVERLAP = 500
 MAX_RETRIES = 2
