@@ -690,26 +690,38 @@ async def kb_build(background_tasks: BackgroundTasks):
     if index_path.exists():
         return {"status": "already_built", "message": "KB index already exists. Delete /data/kb/section_index.json to rebuild."}
 
-    # Run build in background
+    # Store build log in app state for debugging
+    app.state.kb_build_log = "Building..."
+
     async def _build():
         import subprocess
-        result = subprocess.run(
-            [sys.executable, "build_kb.py", "--output", kb_dir, "--skip-embed"],
-            capture_output=True, text=True, timeout=1800,
-        )
-        if result.returncode == 0:
-            logger.info(f"KB build complete: {result.stdout[-200:]}")
-            # Reload KB
-            try:
-                app.state.kb = LawKB(kb_dir)
-                logger.info(f"KB reloaded: {app.state.kb.act_count} acts")
-            except Exception as e:
-                logger.error(f"KB reload failed: {e}")
-        else:
-            logger.error(f"KB build failed: {result.stderr[-500:]}")
+        try:
+            os.makedirs(kb_dir, exist_ok=True)
+            result = subprocess.run(
+                [sys.executable, "build_kb.py", "--output", kb_dir, "--skip-embed"],
+                capture_output=True, text=True, timeout=1800,
+                cwd=str(Path(__file__).parent),
+            )
+            app.state.kb_build_log = f"exit={result.returncode}\nSTDOUT:\n{result.stdout[-1000:]}\nSTDERR:\n{result.stderr[-1000:]}"
+            if result.returncode == 0:
+                try:
+                    app.state.kb = LawKB(kb_dir)
+                    app.state.kb_build_log += f"\nKB loaded: {app.state.kb.act_count} acts"
+                except Exception as e:
+                    app.state.kb_build_log += f"\nKB reload failed: {e}"
+            else:
+                app.state.kb_build_log += "\nBUILD FAILED"
+        except Exception as e:
+            app.state.kb_build_log = f"Exception: {e}"
 
     background_tasks.add_task(_build)
-    return {"status": "building", "message": "Knowledge base build started. Check /api/kb-status in a few minutes."}
+    return {"status": "building", "message": "Knowledge base build started. Check /api/kb-build-log for progress."}
+
+
+@app.get("/api/kb-build-log")
+async def kb_build_log():
+    """Return KB build log for debugging."""
+    return {"log": getattr(app.state, "kb_build_log", "No build attempted")}
 
 
 @app.get("/")
