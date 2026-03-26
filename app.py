@@ -15,6 +15,7 @@ from typing import Optional
 
 from contextlib import asynccontextmanager
 
+import aiosqlite
 import anthropic
 import mammoth
 from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks
@@ -31,12 +32,27 @@ CHUNK_SIZE = 10_000
 CHUNK_OVERLAP = 500
 MAX_RETRIES = 2
 TIMEOUT_SECONDS = 60
+CACHE_TTL_DAYS = 30
+DB_PATH = Path(__file__).parent / "citation_cache.db"
 
 # ─── Lifespan (replaces deprecated @app.on_event) ────────────────────────────
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: launch background cleanup task
+    # Startup: init DB + launch background cleanup task
+    db = await aiosqlite.connect(str(DB_PATH))
+    await db.execute("""
+        CREATE TABLE IF NOT EXISTS citation_cache (
+            cache_key TEXT PRIMARY KEY,
+            citation_json TEXT NOT NULL,
+            result_json TEXT NOT NULL,
+            created_at REAL NOT NULL,
+            expires_at REAL NOT NULL
+        )
+    """)
+    await db.commit()
+    app.state.db = db
+
     async def _cleanup():
         while True:
             await asyncio.sleep(3600)
@@ -46,12 +62,13 @@ async def lifespan(app: FastAPI):
                 del jobs[jid]
     cleanup_task = asyncio.create_task(_cleanup())
     yield
-    # Shutdown: cancel cleanup task
+    # Shutdown
     cleanup_task.cancel()
+    await db.close()
 
 # ─── App ──────────────────────────────────────────────────────────────────────
 
-app = FastAPI(title="BtF Law Checker", version="0.2.0", lifespan=lifespan)
+app = FastAPI(title="BtF Law Checker", version="0.3.0", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -80,6 +97,13 @@ VERIFICATION_PROMPT = """You are a Thai law verification expert. You have been g
 
 Your task is to verify whether the citation is accurate. Use the web_search tool to look up the relevant Thai law from authoritative sources such as krisdika.go.th, thailandlawonline.com, thailawforum.com, or library.siam-legal.com.
 
+IMPORTANT: If the citation is inaccurate, outdated, or partially incorrect, you MUST search for and provide the CORRECT legal reference. This includes:
+- The correct Act name (with B.E. year)
+- The correct section number
+- The actual text of the correct provision
+- Any relevant Thai Supreme Court decisions (e.g. "Supreme Court Decision No. 1234/2550")
+- The source URL where the correct law can be found
+
 After searching, evaluate and respond with ONLY a JSON object (no markdown, no backticks, no preamble):
 {
   "status": "verified" | "partially_verified" | "inaccurate" | "outdated" | "unverifiable",
@@ -88,8 +112,18 @@ After searching, evaluate and respond with ONLY a JSON object (no markdown, no b
   "issue_details": "<explanation of any discrepancy>",
   "suggested_correction": "<recommended rewrite if inaccurate>",
   "amendment_status": "<whether this provision has been amended>",
-  "sources_checked": ["<list of source names checked>"]
+  "sources_checked": ["<list of source names checked>"],
+  "correct_reference": {
+    "act_name": "<correct Act name with B.E. year, or null if verified>",
+    "section": "<correct section number, or null if verified>",
+    "full_text": "<actual text of the correct provision, or null if verified>",
+    "source_url": "<URL of the authoritative source, or null if verified>",
+    "case_law": "<relevant Supreme Court decision numbers and brief summary, or null if none>",
+    "notes": "<brief explanation of why this is the correct reference, or null if verified>"
+  }
 }
+
+For "verified" citations, set correct_reference fields to null. For "inaccurate" or "outdated" citations, you MUST populate correct_reference with the actual correct law. For "partially_verified", populate correct_reference if there are specific corrections needed.
 
 Be strict: only mark as "verified" if the search results clearly confirm accuracy. Mark as "partially_verified" or "unverifiable" if results are ambiguous or insufficient.
 """
@@ -171,6 +205,65 @@ def parse_json_from_response(text: str) -> Optional[dict | list]:
             except json.JSONDecodeError:
                 continue
     return None
+
+
+# ─── Cache ────────────────────────────────────────────────────────────────────
+
+# Common abbreviation mappings for fuzzy cache key matching
+_ACT_ALIASES = {
+    "condo act": "condominium act",
+    "condominium act": "condominium act",
+    "land code": "land code",
+    "fba": "foreign business act",
+    "foreign business act": "foreign business act",
+    "ccc": "civil and commercial code",
+    "civil and commercial code": "civil and commercial code",
+}
+
+
+def make_cache_key(citation: dict) -> str:
+    """Generate a normalized cache key from citation fields."""
+    act = (citation.get("act_name") or "").strip().lower()
+    # Normalize common abbreviations
+    for alias, canonical in _ACT_ALIASES.items():
+        if alias in act:
+            act = canonical
+            break
+    section = (str(citation.get("section") or "")).strip().lower()
+    ctype = (citation.get("type") or "").strip().lower()
+    key = f"{act}|{section}|{ctype}"
+    # Only cache if we have meaningful identifiers
+    if act or section:
+        return key
+    return ""
+
+
+async def cache_get(db: aiosqlite.Connection, key: str) -> Optional[dict]:
+    """Look up a cached verification result. Returns None on miss or expiry."""
+    if not key:
+        return None
+    async with db.execute(
+        "SELECT result_json FROM citation_cache WHERE cache_key = ? AND expires_at > ?",
+        (key, time.time()),
+    ) as cursor:
+        row = await cursor.fetchone()
+        if row:
+            result = json.loads(row[0])
+            result["_cached"] = True
+            return result
+    return None
+
+
+async def cache_set(db: aiosqlite.Connection, key: str, citation: dict, result: dict):
+    """Store a verification result in the cache."""
+    if not key:
+        return
+    now = time.time()
+    await db.execute(
+        "INSERT OR REPLACE INTO citation_cache (cache_key, citation_json, result_json, created_at, expires_at) VALUES (?, ?, ?, ?, ?)",
+        (key, json.dumps(citation), json.dumps(result), now, now + CACHE_TTL_DAYS * 86400),
+    )
+    await db.commit()
 
 
 # ─── Core Logic ───────────────────────────────────────────────────────────────
@@ -289,20 +382,28 @@ async def extract_citations_from_pdf(pdf_bytes: bytes, job_id: str):
                 return []
 
 
-async def verify_single_citation(citation: dict, index: int, total: int, job_id: str):
-    """Verify a single citation using Claude with web search tool."""
-    client = get_client()
+async def verify_single_citation(citation: dict, index: int, total: int, job_id: str, db: aiosqlite.Connection):
+    """Verify a single citation using Claude with web search tool, with caching."""
     job = jobs[job_id]
-    
+
     label = citation.get("act_name", citation.get("citation_text", "")[:60])
     if citation.get("section"):
         label += f" § {citation['section']}"
-    
+
     job["log"].append(f"Verifying ({index+1}/{total}): {label}")
     job["verification_progress"] = {"current": index, "total": total, "label": label}
-    
+
+    # ─── Check cache first ────────────────────────────────────────────
+    cache_key = make_cache_key(citation)
+    cached = await cache_get(db, cache_key)
+    if cached:
+        job["log"].append(f"  → cached: {cached['status']} ({cached.get('confidence', '?')}%)")
+        return cached
+
+    # ─── Cache miss — call Claude ─────────────────────────────────────
+    client = get_client()
     search_query = build_search_query(citation)
-    
+
     prompt = f"""{VERIFICATION_PROMPT}
 
 Citation: "{citation.get('citation_text', '')}"
@@ -313,7 +414,7 @@ Year (B.E.): {citation.get('year_be', 'unspecified')}
 Context: {citation.get('context', 'none')}
 
 Search for: {search_query}"""
-    
+
     for attempt in range(MAX_RETRIES + 1):
         try:
             response = client.messages.create(
@@ -323,19 +424,21 @@ Search for: {search_query}"""
                 tools=[{"type": "web_search_20250305", "name": "web_search"}],
                 timeout=TIMEOUT_SECONDS,
             )
-            
+
             response_text = "".join(
                 block.text for block in response.content if block.type == "text"
             )
-            
+
             parsed = parse_json_from_response(response_text)
             if isinstance(parsed, dict) and "status" in parsed:
                 job["log"].append(f"  → {parsed['status']} ({parsed.get('confidence', '?')}%)")
+                # Store in cache
+                await cache_set(db, cache_key, citation, parsed)
                 return parsed
             else:
                 job["log"].append(f"  → Could not parse verification response")
                 return _unverifiable("Could not parse verification response")
-                
+
         except Exception as e:
             if attempt < MAX_RETRIES:
                 job["log"].append(f"  → Retry {attempt+1}: {str(e)[:80]}")
@@ -396,17 +499,18 @@ async def run_job(job_id: str, file_bytes: bytes, filename: str):
         job["stage"] = "verifying"
         job["results"] = {}
         total = len(citations)
-        
+        db = app.state.db
+
         for i, citation in enumerate(citations):
             if job.get("cancelled"):
                 job["log"].append("Job cancelled by user")
                 break
-            
-            result = await verify_single_citation(citation, i, total, job_id)
+
+            result = await verify_single_citation(citation, i, total, job_id, db)
             job["results"][str(i)] = result
-            
-            # Small delay to avoid rate limiting
-            if i < total - 1:
+
+            # Small delay to avoid rate limiting (skip for cached results)
+            if i < total - 1 and not result.get("_cached"):
                 await asyncio.sleep(0.5)
         
         job["stage"] = "complete"

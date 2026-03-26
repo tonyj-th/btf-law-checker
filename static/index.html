@@ -161,6 +161,27 @@ textarea::placeholder { color: #3e4e5e; }
 .badge-outdated { background: var(--brown-bg); color: var(--brown); }
 .badge-unverifiable { background: var(--grey-bg); color: var(--grey); }
 .badge-type { background: var(--teal-glow); color: var(--teal-light); border-radius: 7px; font-size: 11px; padding: 3px 9px; }
+.badge-cached { background: rgba(100,100,255,0.12); color: #7b8cde; border-radius: 7px; font-size: 10px; padding: 2px 8px; }
+
+/* ─── Correct reference box ────────────────────── */
+.correct-ref {
+  margin-top: 12px; padding: 12px 14px;
+  background: rgba(13,115,119,0.08); border: 1px solid rgba(13,115,119,0.2);
+  border-radius: 9px;
+}
+.correct-ref-title {
+  font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.5px; color: var(--teal-light); margin-bottom: 8px;
+}
+.correct-ref-row { margin-bottom: 6px; }
+.correct-ref-label { font-size: 10.5px; font-weight: 600; color: #6a8a8c; }
+.correct-ref-value { font-size: 13px; color: #c0d0d8; line-height: 1.5; }
+.correct-ref-value a { color: var(--teal-light); text-decoration: underline; }
+.correct-ref-provision {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 7px;
+  color: #a0c0c8; line-height: 1.6; margin-top: 4px;
+}
 
 /* ─── Score ring ────────────────────────────────── */
 .score-wrap { display: flex; align-items: center; gap: 28px; }
@@ -285,7 +306,7 @@ textarea::placeholder { color: #3e4e5e; }
   </section>
 </main>
 
-<footer>BtF Law Checker v0.2 · Verification against official Thai legal sources via web search · Not a substitute for legal advice</footer>
+<footer>BtF Law Checker v0.3 · Verification against official Thai legal sources via web search · Not a substitute for legal advice</footer>
 
 <script>
 // ─── State ────────────────────────────────────────────────────────────────────
@@ -458,7 +479,8 @@ function renderLiveCards() {
     let statusHtml;
     if (r) {
       const s = STATUS[r.status] || STATUS.unverifiable;
-      statusHtml = `<span class="badge ${s.cls}">${s.icon} ${s.label}</span>`;
+      const cb = r._cached ? '<span class="badge badge-cached">cached</span> ' : '';
+      statusHtml = `${cb}<span class="badge ${s.cls}">${s.icon} ${s.label}</span>`;
     } else {
       statusHtml = `<span style="font-size:12px;color:var(--text-faint)">pending</span>`;
     }
@@ -498,6 +520,7 @@ function showReport() {
   const results = Object.values(jobData.results);
   const total = jobData.citations.length;
   const checked = results.length;
+  const cachedCount = results.filter(r => r._cached).length;
   
   // Overall score
   const avg = checked > 0 ? Math.round(results.reduce((s, r) => s + (r.confidence || 0), 0) / checked) : 0;
@@ -523,7 +546,7 @@ function showReport() {
     <div style="flex:1">
       <h2 style="font-size:22px;font-weight:700;margin-bottom:10px;">Verification Report</h2>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">${badgesHtml}</div>
-      <div style="font-size:12px;color:var(--text-faint);margin-top:7px;">${checked} of ${total} citation(s) checked</div>
+      <div style="font-size:12px;color:var(--text-faint);margin-top:7px;">${checked} of ${total} citation(s) checked${cachedCount > 0 ? ` · ${cachedCount} from cache` : ''}</div>
     </div>`;
   
   // Detail cards
@@ -539,7 +562,23 @@ function showReport() {
     if (r.suggested_correction) detailHtml += detailSection('Suggested Correction', r.suggested_correction, 'var(--green)');
     if (r.amendment_status) detailHtml += detailSection('Amendment Status', r.amendment_status, 'var(--brown)');
     if (r.sources_checked?.length) detailHtml += detailSection('Sources Checked', r.sources_checked.join(', '), 'var(--text-faint)');
-    
+
+    // Correct reference block
+    const cr = r.correct_reference;
+    if (cr && (cr.act_name || cr.section || cr.full_text || cr.case_law)) {
+      detailHtml += `<div class="correct-ref">
+        <div class="correct-ref-title">Correct Legal Reference</div>
+        ${cr.act_name ? `<div class="correct-ref-row"><span class="correct-ref-label">Act: </span><span class="correct-ref-value">${esc(cr.act_name)}</span></div>` : ''}
+        ${cr.section ? `<div class="correct-ref-row"><span class="correct-ref-label">Section: </span><span class="correct-ref-value">${esc(cr.section)}</span></div>` : ''}
+        ${cr.full_text ? `<div class="correct-ref-row"><span class="correct-ref-label">Provision text:</span><div class="correct-ref-provision">${esc(cr.full_text)}</div></div>` : ''}
+        ${cr.case_law ? `<div class="correct-ref-row"><span class="correct-ref-label">Case law: </span><span class="correct-ref-value">${esc(cr.case_law)}</span></div>` : ''}
+        ${cr.source_url ? `<div class="correct-ref-row"><span class="correct-ref-label">Source: </span><span class="correct-ref-value"><a href="${esc(cr.source_url)}" target="_blank" rel="noopener">${esc(cr.source_url)}</a></span></div>` : ''}
+        ${cr.notes ? `<div class="correct-ref-row"><span class="correct-ref-label">Notes: </span><span class="correct-ref-value">${esc(cr.notes)}</span></div>` : ''}
+      </div>`;
+    }
+
+    const cachedBadge = r._cached ? ' <span class="badge badge-cached">cached</span>' : '';
+
     cardsHtml += `
     <div class="cit-card" onclick="this.classList.toggle('expanded')">
       <div class="cit-row">
@@ -548,6 +587,7 @@ function showReport() {
           <div class="cit-meta">${[c.act_name, c.section && '§ ' + c.section, c.type].filter(Boolean).join(' · ')}</div>
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+          ${cachedBadge}
           <span style="font-size:13px;font-weight:600;color:${statusColor(r.status)}">${r.confidence}%</span>
           <span class="badge ${cfg.cls}">${cfg.icon} ${cfg.label}</span>
         </div>
