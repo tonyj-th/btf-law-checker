@@ -162,6 +162,10 @@ textarea::placeholder { color: #3e4e5e; }
 .badge-unverifiable { background: var(--grey-bg); color: var(--grey); }
 .badge-type { background: var(--teal-glow); color: var(--teal-light); border-radius: 7px; font-size: 11px; padding: 3px 9px; }
 .badge-cached { background: rgba(100,100,255,0.12); color: #7b8cde; border-radius: 7px; font-size: 10px; padding: 2px 8px; }
+.badge-tier { border-radius: 7px; font-size: 10px; padding: 2px 8px; font-weight: 600; }
+.badge-tier-local_kb { background: rgba(76,175,80,0.12); color: #66bb6a; }
+.badge-tier-semantic_match { background: rgba(100,100,255,0.12); color: #7b8cde; }
+.badge-tier-web_search { background: rgba(255,152,0,0.12); color: #ffa726; }
 
 /* ─── Correct reference box ────────────────────── */
 .correct-ref {
@@ -299,6 +303,10 @@ textarea::placeholder { color: #3e4e5e; }
       <button class="btn btn-outline" onclick="exportJSON()">Export JSON Report</button>
     </div>
 
+    <div class="mt-md" style="background:rgba(13,115,119,0.05);border:1px solid rgba(13,115,119,0.15);border-radius:10px;padding:12px 16px;font-size:12px;color:var(--text-dim);line-height:1.7;" id="kb-info">
+      Loading source info...
+    </div>
+
     <details class="mt-md">
       <summary style="cursor:pointer;font-size:12px;color:var(--text-faint);font-weight:500;">Verification Log</summary>
       <div class="log mt-sm" id="report-log"></div>
@@ -306,7 +314,7 @@ textarea::placeholder { color: #3e4e5e; }
   </section>
 </main>
 
-<footer>BtF Law Checker v0.3 · Verification against official Thai legal sources via web search · Not a substitute for legal advice</footer>
+<footer>BtF Law Checker v0.4 · Three-stage verification: Local KB → Semantic RAG → Web Search · Not a substitute for legal advice</footer>
 
 <script>
 // ─── State ────────────────────────────────────────────────────────────────────
@@ -321,6 +329,12 @@ const STATUS = {
   inaccurate:         { label: 'Inaccurate', icon: '✗', cls: 'badge-inaccurate' },
   outdated:           { label: 'Outdated',   icon: '⏳', cls: 'badge-outdated' },
   unverifiable:       { label: 'Unverifiable',icon: '?', cls: 'badge-unverifiable' },
+};
+
+const TIER = {
+  local_kb:       { label: 'Local KB',       cls: 'badge-tier-local_kb' },
+  semantic_match: { label: 'Semantic Match',  cls: 'badge-tier-semantic_match' },
+  web_search:     { label: 'Web Search',      cls: 'badge-tier-web_search' },
 };
 
 // ─── Upload ───────────────────────────────────────────────────────────────────
@@ -480,7 +494,9 @@ function renderLiveCards() {
     if (r) {
       const s = STATUS[r.status] || STATUS.unverifiable;
       const cb = r._cached ? '<span class="badge badge-cached">cached</span> ' : '';
-      statusHtml = `${cb}<span class="badge ${s.cls}">${s.icon} ${s.label}</span>`;
+      const tier = TIER[r.verification_tier];
+      const tb = tier ? `<span class="badge badge-tier ${tier.cls}">${tier.label}</span> ` : '';
+      statusHtml = `${cb}${tb}<span class="badge ${s.cls}">${s.icon} ${s.label}</span>`;
     } else {
       statusHtml = `<span style="font-size:12px;color:var(--text-faint)">pending</span>`;
     }
@@ -536,6 +552,15 @@ function showReport() {
     badgesHtml += `<span class="badge ${cfg.cls}">${cfg.icon} ${n} ${cfg.label}</span> `;
   });
   
+  // Tier counts
+  const tierCounts = {};
+  results.forEach(r => { if (r.verification_tier) tierCounts[r.verification_tier] = (tierCounts[r.verification_tier] || 0) + 1; });
+  let tierHtml = '';
+  Object.entries(tierCounts).forEach(([t, n]) => {
+    const cfg2 = TIER[t];
+    if (cfg2) tierHtml += `<span class="badge badge-tier ${cfg2.cls}">${n} ${cfg2.label}</span> `;
+  });
+
   document.getElementById('report-summary').innerHTML = `
     <div class="score-ring" style="background:${ringGrad}">
       <div class="score-inner">
@@ -546,8 +571,12 @@ function showReport() {
     <div style="flex:1">
       <h2 style="font-size:22px;font-weight:700;margin-bottom:10px;">Verification Report</h2>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">${badgesHtml}</div>
+      ${tierHtml ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">${tierHtml}</div>` : ''}
       <div style="font-size:12px;color:var(--text-faint);margin-top:7px;">${checked} of ${total} citation(s) checked${cachedCount > 0 ? ` · ${cachedCount} from cache` : ''}</div>
     </div>`;
+
+  // Load KB status info
+  loadKBStatus();
   
   // Detail cards
   let cardsHtml = '';
@@ -578,6 +607,8 @@ function showReport() {
     }
 
     const cachedBadge = r._cached ? ' <span class="badge badge-cached">cached</span>' : '';
+    const tierInfo = TIER[r.verification_tier];
+    const tierBadge = tierInfo ? `<span class="badge badge-tier ${tierInfo.cls}">${tierInfo.label}</span>` : '';
 
     cardsHtml += `
     <div class="cit-card" onclick="this.classList.toggle('expanded')">
@@ -588,6 +619,7 @@ function showReport() {
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
           ${cachedBadge}
+          ${tierBadge}
           <span style="font-size:13px;font-weight:600;color:${statusColor(r.status)}">${r.confidence}%</span>
           <span class="badge ${cfg.cls}">${cfg.icon} ${cfg.label}</span>
         </div>
@@ -600,6 +632,22 @@ function showReport() {
   // Log
   const reportLog = document.getElementById('report-log');
   reportLog.innerHTML = jobData.log.map(l => `<div>${esc(l)}</div>`).join('');
+}
+
+async function loadKBStatus() {
+  try {
+    const res = await fetch('/api/kb-status');
+    const kb = await res.json();
+    const el = document.getElementById('kb-info');
+    if (!el) return;
+    if (kb.available) {
+      el.innerHTML = `<strong>Source hierarchy:</strong> Local KB (${esc(kb.source)}) → Semantic Search → Web Search<br>
+        <strong>Knowledge base:</strong> ${kb.act_count.toLocaleString()} acts · ${kb.section_count.toLocaleString()} sections · ${kb.vector_count.toLocaleString()} vectors<br>
+        <strong>Built:</strong> ${esc(kb.build_date)}`;
+    } else {
+      el.innerHTML = `<strong>Source:</strong> Web search only (knowledge base not loaded)`;
+    }
+  } catch (e) { /* ignore */ }
 }
 
 function detailSection(label, value, color, mono = false) {

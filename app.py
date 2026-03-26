@@ -1,6 +1,6 @@
 """
 BtF Thai Law Citation Checker — FastAPI Backend
-Handles document upload, citation extraction via Claude, and verification via Claude + web search.
+Three-stage verification: Local KB → Semantic RAG → Web Search fallback.
 Progress is streamed to the frontend via Server-Sent Events (SSE).
 """
 
@@ -10,6 +10,7 @@ import uuid
 import asyncio
 import time
 import re
+import logging
 from pathlib import Path
 from typing import Optional
 
@@ -23,6 +24,10 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, StreamingResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+
+from kb import LawKB
+
+logger = logging.getLogger(__name__)
 
 # ─── Config ───────────────────────────────────────────────────────────────────
 
@@ -39,7 +44,7 @@ DB_PATH = Path(os.environ.get("DB_DIR", "/tmp")) / "citation_cache.db"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: init DB + launch background cleanup task
+    # Startup: init DB + KB + launch background cleanup task
     db = await aiosqlite.connect(str(DB_PATH))
     await db.execute("""
         CREATE TABLE IF NOT EXISTS citation_cache (
@@ -52,6 +57,19 @@ async def lifespan(app: FastAPI):
     """)
     await db.commit()
     app.state.db = db
+
+    # Initialize Knowledge Base (graceful — None if not available)
+    kb_dir = os.environ.get("KB_DIR", "/data/kb")
+    if Path(kb_dir).exists():
+        try:
+            app.state.kb = LawKB(kb_dir)
+            logger.info(f"KB loaded: {app.state.kb.act_count} acts, {app.state.kb.section_count} sections")
+        except Exception as e:
+            logger.warning(f"KB failed to load: {e}")
+            app.state.kb = None
+    else:
+        logger.info(f"KB dir not found ({kb_dir}), running in web-search-only mode")
+        app.state.kb = None
 
     async def _cleanup():
         while True:
@@ -68,7 +86,7 @@ async def lifespan(app: FastAPI):
 
 # ─── App ──────────────────────────────────────────────────────────────────────
 
-app = FastAPI(title="BtF Law Checker", version="0.3.0", lifespan=lifespan)
+app = FastAPI(title="BtF Law Checker", version="0.4.0", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -126,6 +144,41 @@ After searching, evaluate and respond with ONLY a JSON object (no markdown, no b
 For "verified" citations, set correct_reference fields to null. For "inaccurate" or "outdated" citations, you MUST populate correct_reference with the actual correct law. For "partially_verified", populate correct_reference if there are specific corrections needed.
 
 Be strict: only mark as "verified" if the search results clearly confirm accuracy. Mark as "partially_verified" or "unverifiable" if results are ambiguous or insufficient.
+"""
+
+KB_VERIFICATION_PROMPT = """You are a Thai law verification expert. Compare a legal citation from a BtF (Better Than Freehold) document against the ACTUAL Thai legal text retrieved from the official knowledge base (sourced from krisdika.go.th).
+
+The knowledge base text is in Thai. The citation is in English. You must:
+1. Translate/interpret the Thai legal text to understand what it actually says
+2. Compare the English citation's claims against the actual Thai law
+3. Determine if the citation accurately represents the law
+
+IMPORTANT: If the citation is inaccurate, outdated, or partially incorrect, provide the CORRECT legal reference including:
+- The correct Act name (with B.E. year)
+- The correct section number
+- What the law actually says (translate the relevant Thai text)
+- Any relevant Supreme Court decisions if applicable
+
+Respond with ONLY a JSON object (no markdown, no backticks, no preamble):
+{
+  "status": "verified" | "partially_verified" | "inaccurate" | "outdated" | "unverifiable",
+  "confidence": <number 0-100>,
+  "source_text": "<translated summary of the actual Thai legal text>",
+  "issue_details": "<explanation of any discrepancy>",
+  "suggested_correction": "<recommended rewrite if inaccurate>",
+  "amendment_status": "<whether this provision has been amended>",
+  "sources_checked": ["Official Thai Law KB (krisdika.go.th)"],
+  "correct_reference": {
+    "act_name": "<correct Act name with B.E. year, or null if verified>",
+    "section": "<correct section number, or null if verified>",
+    "full_text": "<actual text of the correct provision, or null if verified>",
+    "source_url": "<URL or null>",
+    "case_law": "<relevant Supreme Court decisions or null>",
+    "notes": "<explanation or null>"
+  }
+}
+
+For "verified" citations, set correct_reference fields to null. Be strict but fair.
 """
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -383,8 +436,8 @@ async def extract_citations_from_pdf(pdf_bytes: bytes, job_id: str):
                 return []
 
 
-async def verify_single_citation(citation: dict, index: int, total: int, job_id: str, db: aiosqlite.Connection):
-    """Verify a single citation using Claude with web search tool, with caching."""
+async def verify_single_citation(citation: dict, index: int, total: int, job_id: str, db: aiosqlite.Connection, kb: Optional["LawKB"] = None):
+    """Verify a citation using three-stage pipeline: Local KB → Semantic RAG → Web Search."""
     job = jobs[job_id]
 
     label = citation.get("act_name", citation.get("citation_text", "")[:60])
@@ -401,7 +454,94 @@ async def verify_single_citation(citation: dict, index: int, total: int, job_id:
         job["log"].append(f"  → cached: {cached['status']} ({cached.get('confidence', '?')}%)")
         return cached
 
-    # ─── Cache miss — call Claude ─────────────────────────────────────
+    # ─── Stage 1: Exact Match (Local KB) ──────────────────────────────
+    if kb and kb.is_available() and citation.get("act_name") and citation.get("section"):
+        exact = kb.exact_lookup(citation["act_name"], str(citation["section"]))
+        if exact:
+            job["log"].append(f"  → Stage 1: Exact KB match found")
+            result = await _verify_against_kb(citation, exact["thai_text"], exact["act_name_thai"], exact["section"])
+            if result and result.get("confidence", 0) >= 60:
+                result["verification_tier"] = "local_kb"
+                await cache_set(db, cache_key, citation, result)
+                job["log"].append(f"  → {result['status']} ({result.get('confidence', '?')}%) [Local KB]")
+                return result
+            job["log"].append(f"  → Stage 1: Low confidence ({result.get('confidence', 0)}%), trying next stage")
+
+    # ─── Stage 2: Semantic RAG (ChromaDB + Cohere) ────────────────────
+    if kb and kb.has_semantic_search():
+        query = f"{citation.get('act_name', '')} {citation.get('citation_text', '')}"
+        chunks = await kb.semantic_search(query, n_results=5)
+        if chunks and chunks[0]["distance"] < 0.5:
+            job["log"].append(f"  → Stage 2: Semantic match (distance={chunks[0]['distance']:.3f})")
+            # Build context from top chunks
+            kb_context = "\n\n---\n\n".join(
+                f"[{c['act_title']} - Section {c['section_number']}]\n{c['text']}"
+                for c in chunks[:3]
+            )
+            result = await _verify_against_kb(citation, kb_context, chunks[0]["act_title"], chunks[0]["section_number"])
+            if result and result.get("confidence", 0) >= 50:
+                result["verification_tier"] = "semantic_match"
+                await cache_set(db, cache_key, citation, result)
+                job["log"].append(f"  → {result['status']} ({result.get('confidence', '?')}%) [Semantic]")
+                return result
+            job["log"].append(f"  → Stage 2: Low confidence, falling back to web search")
+
+    # ─── Stage 3: Web Search Fallback ─────────────────────────────────
+    job["log"].append(f"  → Stage 3: Web search")
+    result = await _verify_via_web_search(citation, job_id)
+    result["verification_tier"] = "web_search"
+    await cache_set(db, cache_key, citation, result)
+    job["log"].append(f"  → {result['status']} ({result.get('confidence', '?')}%) [Web Search]")
+    return result
+
+
+async def _verify_against_kb(citation: dict, thai_text: str, act_name_thai: str, section: str) -> Optional[dict]:
+    """Verify a citation against Thai legal text from the local KB. No web search tool — cheaper."""
+    client = get_client()
+
+    prompt = f"""{KB_VERIFICATION_PROMPT}
+
+Citation from BtF document: "{citation.get('citation_text', '')}"
+Type: {citation.get('type', 'unspecified')}
+Act (English): {citation.get('act_name', 'unspecified')}
+Section: {citation.get('section', 'unspecified')}
+Year (B.E.): {citation.get('year_be', 'unspecified')}
+Context: {citation.get('context', 'none')}
+
+Actual Thai legal text from knowledge base:
+Act: {act_name_thai}
+Section: {section}
+Text:
+{thai_text[:3000]}"""
+
+    for attempt in range(MAX_RETRIES + 1):
+        try:
+            response = client.messages.create(
+                model=MODEL,
+                max_tokens=4096,
+                messages=[{"role": "user", "content": prompt}],
+                timeout=TIMEOUT_SECONDS,
+            )
+
+            response_text = "".join(
+                block.text for block in response.content if block.type == "text"
+            )
+
+            parsed = parse_json_from_response(response_text)
+            if isinstance(parsed, dict) and "status" in parsed:
+                return parsed
+            return None
+
+        except Exception as e:
+            if attempt < MAX_RETRIES:
+                await asyncio.sleep(2)
+            else:
+                logger.error(f"KB verification error: {e}")
+                return None
+
+
+async def _verify_via_web_search(citation: dict, job_id: str) -> dict:
+    """Stage 3: Verify using Claude + web search (existing logic)."""
     client = get_client()
     search_query = build_search_query(citation)
 
@@ -432,24 +572,18 @@ Search for: {search_query}"""
 
             parsed = parse_json_from_response(response_text)
             if isinstance(parsed, dict) and "status" in parsed:
-                job["log"].append(f"  → {parsed['status']} ({parsed.get('confidence', '?')}%)")
-                # Store in cache
-                await cache_set(db, cache_key, citation, parsed)
                 return parsed
             else:
-                job["log"].append(f"  → Could not parse verification response")
                 return _unverifiable("Could not parse verification response")
 
         except Exception as e:
             if attempt < MAX_RETRIES:
-                job["log"].append(f"  → Retry {attempt+1}: {str(e)[:80]}")
                 await asyncio.sleep(2)
             else:
-                job["log"].append(f"  → Error: {str(e)[:80]}")
                 return _unverifiable(f"Verification error: {str(e)[:80]}")
 
 
-def _unverifiable(reason: str) -> dict:
+def _unverifiable(reason: str, tier: str = "web_search") -> dict:
     return {
         "status": "unverifiable",
         "confidence": 0,
@@ -457,7 +591,8 @@ def _unverifiable(reason: str) -> dict:
         "issue_details": reason,
         "suggested_correction": "",
         "amendment_status": "",
-        "sources_checked": []
+        "sources_checked": [],
+        "verification_tier": tier,
     }
 
 
@@ -501,13 +636,19 @@ async def run_job(job_id: str, file_bytes: bytes, filename: str):
         job["results"] = {}
         total = len(citations)
         db = app.state.db
+        kb = getattr(app.state, "kb", None)
+
+        if kb and kb.is_available():
+            job["log"].append(f"Knowledge base active: {kb.act_count} acts, {kb.section_count} sections")
+        else:
+            job["log"].append("Knowledge base not available — using web search only")
 
         for i, citation in enumerate(citations):
             if job.get("cancelled"):
                 job["log"].append("Job cancelled by user")
                 break
 
-            result = await verify_single_citation(citation, i, total, job_id, db)
+            result = await verify_single_citation(citation, i, total, job_id, db, kb)
             job["results"][str(i)] = result
 
             # Small delay to avoid rate limiting (skip for cached results)
@@ -528,6 +669,15 @@ async def run_job(job_id: str, file_bytes: bytes, filename: str):
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+
+@app.get("/api/kb-status")
+async def kb_status():
+    """Return knowledge base status."""
+    kb = getattr(app.state, "kb", None)
+    if kb and kb.is_available():
+        return kb.status()
+    return {"available": False, "semantic_search": False, "act_count": 0, "section_count": 0, "source": "none", "build_date": "N/A", "vector_count": 0}
 
 
 @app.get("/")

@@ -1,0 +1,7 @@
+# Dependencies for build_kb.py (knowledge base builder)
+# Install separately: pip install -r requirements-build.txt
+datasets>=3.0.0
+pandas>=2.0.0
+pyarrow>=15.0.0
+chromadb>=0.5.0
+cohere>=5.0.0

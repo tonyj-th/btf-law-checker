@@ -4,3 +4,5 @@ anthropic>=0.40.0
 mammoth==1.8.0
 python-multipart==0.0.9
 aiosqlite==0.20.0
+chromadb>=0.5.0
+cohere>=5.0.0

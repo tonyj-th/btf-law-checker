@@ -1,0 +1,48 @@
+{
+  "_comment": "English act name (lowercase) → Thai act name. Used for exact-match lookups in the Thai law knowledge base.",
+
+  "condominium act": "พระราชบัญญัติอาคารชุด",
+  "condo act": "พระราชบัญญัติอาคารชุด",
+  "condominium act b.e. 2522": "พระราชบัญญัติอาคารชุด",
+
+  "land code": "ประมวลกฎหมายที่ดิน",
+  "land code b.e. 2497": "ประมวลกฎหมายที่ดิน",
+
+  "foreign business act": "พระราชบัญญัติการประกอบธุรกิจของคนต่างด้าว",
+  "fba": "พระราชบัญญัติการประกอบธุรกิจของคนต่างด้าว",
+  "foreign business act b.e. 2542": "พระราชบัญญัติการประกอบธุรกิจของคนต่างด้าว",
+
+  "civil and commercial code": "ประมวลกฎหมายแพ่งและพาณิชย์",
+  "ccc": "ประมวลกฎหมายแพ่งและพาณิชย์",
+  "civil code": "ประมวลกฎหมายแพ่งและพาณิชย์",
+
+  "constitution": "รัฐธรรมนูญแห่งราชอาณาจักรไทย",
+  "constitution b.e. 2560": "รัฐธรรมนูญแห่งราชอาณาจักรไทย",
+  "thai constitution": "รัฐธรรมนูญแห่งราชอาณาจักรไทย",
+
+  "lease of immovable property act": "พระราชบัญญัติการเช่าอสังหาริมทรัพย์เพื่อพาณิชยกรรมและอุตสาหกรรม",
+  "lease of immovable property for commerce and industry act": "พระราชบัญญัติการเช่าอสังหาริมทรัพย์เพื่อพาณิชยกรรมและอุตสาหกรรม",
+  "lease of immovable property act b.e. 2542": "พระราชบัญญัติการเช่าอสังหาริมทรัพย์เพื่อพาณิชยกรรมและอุตสาหกรรม",
+
+  "investment promotion act": "พระราชบัญญัติส่งเสริมการลงทุน",
+  "investment promotion act b.e. 2520": "พระราชบัญญัติส่งเสริมการลงทุน",
+  "boi act": "พระราชบัญญัติส่งเสริมการลงทุน",
+
+  "revenue code": "ประมวลรัษฎากร",
+  "thai revenue code": "ประมวลรัษฎากร",
+
+  "criminal code": "ประมวลกฎหมายอาญา",
+  "penal code": "ประมวลกฎหมายอาญา",
+
+  "immigration act": "พระราชบัญญัติคนเข้าเมือง",
+  "immigration act b.e. 2522": "พระราชบัญญัติคนเข้าเมือง",
+
+  "land and building tax act": "พระราชบัญญัติภาษีที่ดินและสิ่งปลูกสร้าง",
+  "land and building tax act b.e. 2562": "พระราชบัญญัติภาษีที่ดินและสิ่งปลูกสร้าง",
+
+  "town planning act": "พระราชบัญญัติการผังเมือง",
+  "building control act": "พระราชบัญญัติควบคุมอาคาร",
+
+  "escrow act": "พระราชบัญญัติการดูแลผลประโยชน์ของคู่สัญญา",
+  "escrow act b.e. 2551": "พระราชบัญญัติการดูแลผลประโยชน์ของคู่สัญญา"
+}
