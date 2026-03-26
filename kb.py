@@ -57,6 +57,13 @@ class LawKB:
                 logger.error(f"KB: Failed to load bundled index: {e}")
                 return
 
+        # Build reverse lookup: short Thai act name → full index key(s)
+        # The dataset uses long gazette titles, but our mapping has short names
+        self._thai_to_index_keys = {}
+        for full_key in self._section_index:
+            self._thai_to_index_keys[full_key] = full_key  # exact match
+        logger.info(f"KB: Built reverse lookup for {len(self._thai_to_index_keys)} index keys")
+
         # Load metadata
         meta_path = self.kb_dir / "kb_meta.json"
         if meta_path.exists():
@@ -168,12 +175,35 @@ class LawKB:
             return None
 
         # Search through index keys for a match
-        # (index keys are full Thai act titles which may include more detail)
+        # Dataset uses full gazette titles (long), our mapping has short Thai names
+        # Strategy: find any index key that CONTAINS the short Thai act name
         matched_act = None
-        for index_key in self._section_index:
-            if thai_name in index_key:
-                matched_act = index_key
-                break
+
+        # 1. Exact key match
+        if thai_name in self._section_index:
+            matched_act = thai_name
+
+        # 2. Substring match — short Thai name inside long gazette title
+        if not matched_act:
+            for index_key in self._section_index:
+                if thai_name in index_key:
+                    matched_act = index_key
+                    break
+
+        # 3. Try matching individual Thai words (at least 3 chars) for fuzzy gazette titles
+        if not matched_act and len(thai_name) > 6:
+            # Split Thai name into segments and find keys containing most segments
+            best_match = None
+            best_score = 0
+            for index_key in self._section_index:
+                # Count how many chars from thai_name appear as substring
+                if any(thai_name[i:i+6] in index_key for i in range(0, len(thai_name) - 5, 3)):
+                    score = sum(1 for i in range(0, len(thai_name) - 5, 3) if thai_name[i:i+6] in index_key)
+                    if score > best_score:
+                        best_score = score
+                        best_match = index_key
+            if best_match and best_score >= 2:
+                matched_act = best_match
 
         if not matched_act:
             return None
