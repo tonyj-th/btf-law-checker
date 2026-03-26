@@ -33,7 +33,7 @@ CHUNK_OVERLAP = 500
 MAX_RETRIES = 2
 TIMEOUT_SECONDS = 60
 CACHE_TTL_DAYS = 30
-DB_PATH = Path(__file__).parent / "citation_cache.db"
+DB_PATH = Path(os.environ.get("DB_DIR", "/tmp")) / "citation_cache.db"
 
 # ─── Lifespan (replaces deprecated @app.on_event) ────────────────────────────
 
@@ -523,6 +523,11 @@ async def run_job(job_id: str, file_bytes: bytes, filename: str):
 
 
 # ─── Routes ───────────────────────────────────────────────────────────────────
+
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
 
 @app.get("/")
 async def index():
