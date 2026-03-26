@@ -2,6 +2,8 @@
 
 A web-based tool that extracts and verifies Thai legal citations from BtF documents against authoritative sources.
 
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/template/new?repo=tonyj-th/btf-law-checker&envs=ANTHROPIC_API_KEY&ANTHROPIC_API_KEYDesc=Your+Anthropic+API+key)
+
 ## Quick Start
 
 ### 1. Install dependencies
