@@ -681,6 +681,47 @@ async def kb_status():
     return {"available": False, "semantic_search": False, "act_count": 0, "section_count": 0, "source": "none", "build_date": "N/A", "vector_count": 0}
 
 
+@app.get("/api/kb-debug-lookup")
+async def kb_debug_lookup(act: str = "Condominium Act", section: str = "19"):
+    """Debug: trace KB lookup step by step."""
+    kb = getattr(app.state, "kb", None)
+    if not kb or not kb.is_available():
+        return {"error": "KB not available", "available": False}
+
+    # Step 1: resolve act name
+    thai_name = kb._resolve_act_name(act)
+
+    # Step 2: check if thai name exists in index
+    matched_act = None
+    index_keys_sample = list(kb._section_index.keys())[:10]
+    if thai_name:
+        for index_key in kb._section_index:
+            if thai_name in index_key:
+                matched_act = index_key
+                break
+
+    # Step 3: check section
+    sections_available = []
+    if matched_act:
+        sections_available = list(kb._section_index[matched_act].keys())[:20]
+
+    # Step 4: do the actual lookup
+    result = kb.exact_lookup(act, section)
+
+    return {
+        "input_act": act,
+        "input_section": section,
+        "thai_name_resolved": thai_name,
+        "matched_act_in_index": matched_act,
+        "index_keys_sample": index_keys_sample,
+        "sections_available": sections_available,
+        "mapping_count": len(kb._act_mapping),
+        "index_count": len(kb._section_index),
+        "lookup_result": result is not None,
+        "result_preview": result["thai_text"][:200] if result else None,
+    }
+
+
 @app.post("/api/kb-build")
 async def kb_build(background_tasks: BackgroundTasks):
     """Trigger knowledge base build on the server (downloads dataset, parses sections, saves index)."""
