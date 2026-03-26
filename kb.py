@@ -9,6 +9,7 @@ Provides three-stage legal citation lookup:
 Loads at app startup. Gracefully degrades if KB data is missing.
 """
 
+import gzip
 import json
 import os
 import logging
@@ -34,15 +35,26 @@ class LawKB:
 
     def _load(self):
         """Load KB data from disk."""
-        # Load section index
+        # Load section index — try full index first, then bundled priority index
         index_path = self.kb_dir / "section_index.json"
+        bundled_path = Path(__file__).parent / "data" / "priority_index.json.gz"
+
         if index_path.exists():
             try:
                 with open(index_path, "r", encoding="utf-8") as f:
                     self._section_index = json.load(f)
-                logger.info(f"KB: Loaded section index with {len(self._section_index)} acts")
+                logger.info(f"KB: Loaded FULL section index with {len(self._section_index)} acts")
             except Exception as e:
                 logger.error(f"KB: Failed to load section index: {e}")
+
+        if not self._section_index and bundled_path.exists():
+            try:
+                with gzip.open(bundled_path, "rb") as f:
+                    self._section_index = json.loads(f.read().decode("utf-8"))
+                self._meta = {"source": "pythainlp/thailaw-v1.0 (priority subset)", "build_date": "2026-03-26", "total_acts": len(self._section_index)}
+                logger.info(f"KB: Loaded BUNDLED priority index with {len(self._section_index)} acts")
+            except Exception as e:
+                logger.error(f"KB: Failed to load bundled index: {e}")
                 return
 
         # Load metadata

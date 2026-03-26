@@ -59,17 +59,17 @@ async def lifespan(app: FastAPI):
     await db.commit()
     app.state.db = db
 
-    # Initialize Knowledge Base (graceful — None if not available)
+    # Initialize Knowledge Base (tries volume first, then bundled priority index)
     kb_dir = os.environ.get("KB_DIR", "/data/kb")
-    if Path(kb_dir).exists():
-        try:
-            app.state.kb = LawKB(kb_dir)
+    try:
+        app.state.kb = LawKB(kb_dir)
+        if app.state.kb.is_available():
             logger.info(f"KB loaded: {app.state.kb.act_count} acts, {app.state.kb.section_count} sections")
-        except Exception as e:
-            logger.warning(f"KB failed to load: {e}")
+        else:
+            logger.info("KB not available — running in web-search-only mode")
             app.state.kb = None
-    else:
-        logger.info(f"KB dir not found ({kb_dir}), running in web-search-only mode")
+    except Exception as e:
+        logger.warning(f"KB failed to load: {e}")
         app.state.kb = None
 
     async def _cleanup():
@@ -698,7 +698,7 @@ async def kb_build(background_tasks: BackgroundTasks):
         try:
             os.makedirs(kb_dir, exist_ok=True)
             result = subprocess.run(
-                [sys.executable, "build_kb.py", "--output", kb_dir, "--skip-embed"],
+                [sys.executable, "build_kb.py", "--output", kb_dir, "--skip-embed", "--limit", "5000"],
                 capture_output=True, text=True, timeout=1800,
                 cwd=str(Path(__file__).parent),
             )
