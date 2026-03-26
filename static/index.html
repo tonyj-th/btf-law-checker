@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BtF Law Checker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #1B2A4A;
+  --teal: #0d7377;
+  --teal-light: #14a3a8;
+  --teal-glow: rgba(13,115,119,0.15);
+  --bg-deep: #0a1628;
+  --bg-card: rgba(255,255,255,0.04);
+  --bg-card-hover: rgba(255,255,255,0.07);
+  --border: rgba(255,255,255,0.08);
+  --border-hover: rgba(255,255,255,0.14);
+  --text: #e8ecf0;
+  --text-dim: #8a9aaa;
+  --text-faint: #5a6a7a;
+  --green: #0a8754;
+  --green-bg: #e6f5ee;
+  --yellow: #b8860b;
+  --yellow-bg: #fdf6e3;
+  --red: #c0392b;
+  --red-bg: #fce8e6;
+  --brown: #8b5e3c;
+  --brown-bg: #fef0e5;
+  --grey: #6c757d;
+  --grey-bg: #f0f0f0;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(175deg, var(--bg-deep) 0%, #0f2035 40%, #0d2a2e 100%);
+  color: var(--text);
+  font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+  line-height: 1.5;
+}
+
+/* ─── Layout ────────────────────────────────────── */
+header {
+  padding: 20px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.logo { display: flex; align-items: center; gap: 12px; }
+.logo-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--teal), #0a9a6e);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 700; color: white;
+}
+.logo-text h1 { font-size: 16px; font-weight: 700; letter-spacing: -0.3px; }
+.logo-text span { font-size: 10px; color: var(--text-faint); font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; }
+.accent-line { height: 2px; margin: 0 32px; background: linear-gradient(90deg, var(--teal), var(--teal-light), var(--teal)); border-radius: 1px; }
+main { max-width: 880px; margin: 0 auto; padding: 28px 20px 60px; }
+footer { text-align: center; padding: 24px; color: #3a4a5a; font-size: 11px; }
+
+/* ─── Cards ─────────────────────────────────────── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  backdrop-filter: blur(16px);
+  padding: 28px;
+  margin-bottom: 20px;
+}
+
+/* ─── Buttons ───────────────────────────────────── */
+.btn {
+  border: none; border-radius: 10px; font-family: inherit;
+  font-weight: 600; cursor: pointer; transition: all 0.2s;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--teal), #0a9a6e);
+  color: white; padding: 12px 28px; font-size: 15px;
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(13,115,119,0.3); }
+.btn-primary:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-outline {
+  background: transparent; color: var(--teal-light);
+  border: 1px solid rgba(20,163,168,0.3);
+  padding: 9px 22px; font-size: 13px;
+}
+.btn-outline:hover { background: rgba(20,163,168,0.08); border-color: var(--teal-light); }
+.btn-sm { padding: 6px 16px; font-size: 12px; }
+
+/* ─── Drop zone ─────────────────────────────────── */
+.drop-zone {
+  border: 2px dashed rgba(13,115,119,0.35);
+  border-radius: 14px; padding: 44px 28px; text-align: center;
+  cursor: pointer; transition: all 0.3s; background: rgba(13,115,119,0.02);
+}
+.drop-zone:hover, .drop-zone.drag-over {
+  border-color: var(--teal-light); background: rgba(13,115,119,0.07);
+  box-shadow: 0 0 40px rgba(13,115,119,0.08);
+}
+.drop-zone .icon { font-size: 38px; margin-bottom: 10px; opacity: 0.35; }
+.drop-zone .label { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.drop-zone .hint { font-size: 12px; color: var(--text-faint); }
+
+/* ─── Textarea ──────────────────────────────────── */
+textarea {
+  width: 100%; background: rgba(0,0,0,0.2);
+  border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
+  padding: 13px 15px; color: #cdd6e0;
+  font-family: 'JetBrains Mono', monospace; font-size: 13px;
+  resize: vertical; line-height: 1.6; min-height: 120px;
+}
+textarea:focus { outline: none; border-color: rgba(20,163,168,0.4); }
+textarea::placeholder { color: #3e4e5e; }
+
+/* ─── Progress ──────────────────────────────────── */
+.progress-track { height: 5px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--teal), var(--teal-light)); border-radius: 3px; transition: width 0.6s ease; }
+
+/* ─── Log ───────────────────────────────────────── */
+.log {
+  background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 10px; padding: 12px 14px;
+  max-height: 180px; overflow-y: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px; color: var(--text-dim); line-height: 1.9;
+}
+.log .time { color: var(--teal); }
+
+/* ─── Citation cards ────────────────────────────── */
+.cit-card {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid var(--border); border-radius: 11px;
+  padding: 14px 18px; margin-bottom: 10px;
+  cursor: pointer; transition: all 0.2s;
+}
+.cit-card:hover { background: var(--bg-card-hover); border-color: var(--border-hover); }
+.cit-card.expanded { border-color: rgba(20,163,168,0.3); background: rgba(255,255,255,0.04); }
+.cit-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.cit-text { font-size: 13.5px; font-weight: 500; color: #d0d8e0; line-height: 1.5; flex: 1; }
+.cit-meta { font-size: 11.5px; color: var(--text-faint); margin-top: 3px; }
+.cit-detail { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); display: none; }
+.cit-card.expanded .cit-detail { display: block; }
+.detail-section { margin-bottom: 11px; }
+.detail-label { font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+.detail-value { font-size: 13px; color: #b0bec5; line-height: 1.6; }
+.detail-mono { font-family: 'JetBrains Mono', monospace; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 7px; font-size: 12px; }
+
+/* ─── Badges ────────────────────────────────────── */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 11px; border-radius: 16px;
+  font-size: 11.5px; font-weight: 600; letter-spacing: 0.2px; white-space: nowrap;
+}
+.badge-verified { background: var(--green-bg); color: var(--green); }
+.badge-partially_verified { background: var(--yellow-bg); color: var(--yellow); }
+.badge-inaccurate { background: var(--red-bg); color: var(--red); }
+.badge-outdated { background: var(--brown-bg); color: var(--brown); }
+.badge-unverifiable { background: var(--grey-bg); color: var(--grey); }
+.badge-type { background: var(--teal-glow); color: var(--teal-light); border-radius: 7px; font-size: 11px; padding: 3px 9px; }
+
+/* ─── Score ring ────────────────────────────────── */
+.score-wrap { display: flex; align-items: center; gap: 28px; }
+.score-ring {
+  width: 96px; height: 96px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.score-inner {
+  width: 76px; height: 76px; border-radius: 50%;
+  background: #0f2035; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.score-num { font-size: 26px; font-weight: 700; }
+.score-label { font-size: 10px; color: var(--text-faint); }
+
+/* ─── Animations ────────────────────────────────── */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+.fade-up { animation: fadeUp 0.35s ease forwards; }
+@keyframes pulse { 0%,100% { opacity: 0.45; } 50% { opacity: 1; } }
+.pulse { animation: pulse 1.4s ease infinite; }
+
+/* ─── Responsive ────────────────────────────────── */
+@media (max-width: 600px) {
+  main { padding: 16px 12px 40px; }
+  .card { padding: 18px; }
+  .score-wrap { flex-direction: column; text-align: center; }
+}
+
+/* ─── Utility ───────────────────────────────────── */
+.hidden { display: none !important; }
+.center { text-align: center; }
+.mt-sm { margin-top: 12px; }
+.mt-md { margin-top: 20px; }
+.mb-md { margin-bottom: 20px; }
+.gap-sm { display: flex; gap: 10px; }
+.divider { margin: 18px 0; font-size: 12px; color: var(--text-faint); font-weight: 500; text-align: center; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">§</div>
+    <div class="logo-text">
+      <h1>BtF Law Checker</h1>
+      <span>Thai Legal Citation Verifier</span>
+    </div>
+  </div>
+  <button class="btn btn-outline hidden" id="btn-reset" onclick="resetAll()">← New Document</button>
+</header>
+<div class="accent-line"></div>
+
+<main>
+  <!-- ═══ UPLOAD ═══ -->
+  <section id="stage-upload" class="fade-up">
+    <div class="center mb-md">
+      <h2 style="font-size:28px;font-weight:700;letter-spacing:-0.4px;margin-bottom:8px;background:linear-gradient(135deg,#e8ecf0,#a0b0c0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Verify Thai Legal Citations</h2>
+      <p style="color:var(--text-faint);font-size:14px;max-width:520px;margin:0 auto;line-height:1.6;">Upload a BtF document or paste text. Every legal reference will be extracted and verified against authoritative Thai law sources.</p>
+    </div>
+
+    <div class="card">
+      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+        <input type="file" id="file-input" accept=".docx,.pdf,.txt,.md" style="display:none" onchange="handleFile(this.files[0])">
+        <div class="icon">📄</div>
+        <div class="label" id="file-label">Drop a file here or click to browse</div>
+        <div class="hint">Supports .docx, .pdf, .txt, .md</div>
+      </div>
+      <div class="divider">— or paste your document text —</div>
+      <textarea id="paste-area" placeholder="Paste your BtF article, legal guide, or any document containing Thai legal references here..."></textarea>
+    </div>
+
+    <div id="error-box" class="hidden" style="background:rgba(192,57,43,0.1);border:1px solid rgba(192,57,43,0.3);border-radius:10px;padding:11px 15px;margin-bottom:16px;color:#e74c3c;font-size:13px;"></div>
+
+    <div class="center">
+      <button class="btn btn-primary" id="btn-start" style="padding:13px 36px;font-size:15px;" onclick="startCheck()">Extract & Verify Citations →</button>
+    </div>
+  </section>
+
+  <!-- ═══ PROCESSING ═══ -->
+  <section id="stage-processing" class="hidden fade-up">
+    <div class="card center">
+      <div class="pulse" style="font-size:44px;margin-bottom:12px;">§</div>
+      <h2 style="font-size:20px;font-weight:700;margin-bottom:6px;" id="proc-title">Processing Document</h2>
+      <p style="color:var(--text-dim);font-size:13px;margin-bottom:18px;" id="proc-subtitle">Analysing your document for Thai legal references...</p>
+      <div style="max-width:420px;margin:0 auto 8px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;">
+          <span style="color:var(--teal-light);font-weight:600;" id="proc-count">0 / 0</span>
+          <span style="color:var(--text-faint);" id="proc-pct">0%</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="proc-bar" style="width:0%"></div></div>
+      </div>
+      <div style="font-size:12px;color:var(--text-dim);margin-top:8px;display:flex;justify-content:space-between;align-items:center;max-width:420px;margin:8px auto 0;">
+        <span id="proc-label"></span>
+        <button class="btn btn-outline btn-sm" onclick="cancelJob()">Skip remaining →</button>
+      </div>
+    </div>
+
+    <!-- Live results -->
+    <div id="live-results"></div>
+
+    <div class="log mt-sm" id="log-area"></div>
+  </section>
+
+  <!-- ═══ REPORT ═══ -->
+  <section id="stage-report" class="hidden fade-up">
+    <div class="card">
+      <div class="score-wrap" id="report-summary"></div>
+    </div>
+
+    <div style="font-size:13px;font-weight:600;color:#a0b0c0;margin-bottom:12px;">Detailed Results</div>
+    <div id="report-results"></div>
+
+    <div class="center mt-md gap-sm" style="justify-content:center;">
+      <button class="btn btn-primary" onclick="resetAll()">Check Another Document</button>
+      <button class="btn btn-outline" onclick="exportJSON()">Export JSON Report</button>
+    </div>
+
+    <details class="mt-md">
+      <summary style="cursor:pointer;font-size:12px;color:var(--text-faint);font-weight:500;">Verification Log</summary>
+      <div class="log mt-sm" id="report-log"></div>
+    </details>
+  </section>
+</main>
+
+<footer>BtF Law Checker v0.2 · Verification against official Thai legal sources via web search · Not a substitute for legal advice</footer>
+
+<script>
+// ─── State ────────────────────────────────────────────────────────────────────
+let currentJobId = null;
+let eventSource = null;
+let jobData = { citations: [], results: {}, log: [] };
+let selectedFile = null;
+
+const STATUS = {
+  verified:           { label: 'Verified',   icon: '✓', cls: 'badge-verified' },
+  partially_verified: { label: 'Partial',    icon: '◐', cls: 'badge-partially_verified' },
+  inaccurate:         { label: 'Inaccurate', icon: '✗', cls: 'badge-inaccurate' },
+  outdated:           { label: 'Outdated',   icon: '⏳', cls: 'badge-outdated' },
+  unverifiable:       { label: 'Unverifiable',icon: '?', cls: 'badge-unverifiable' },
+};
+
+// ─── Upload ───────────────────────────────────────────────────────────────────
+const dropZone = document.getElementById('drop-zone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); handleFile(e.dataTransfer.files[0]); });
+
+function handleFile(file) {
+  if (!file) return;
+  selectedFile = file;
+  document.getElementById('file-label').textContent = file.name;
+  document.getElementById('paste-area').value = '';
+  hideError();
+}
+
+function showError(msg) {
+  const box = document.getElementById('error-box');
+  box.textContent = msg; box.classList.remove('hidden');
+}
+function hideError() { document.getElementById('error-box').classList.add('hidden'); }
+
+// ─── Start ────────────────────────────────────────────────────────────────────
+async function startCheck() {
+  hideError();
+  const pastedText = document.getElementById('paste-area').value.trim();
+  
+  if (!selectedFile && !pastedText) {
+    showError('Upload a file or paste text to check.');
+    return;
+  }
+
+  document.getElementById('btn-start').disabled = true;
+
+  try {
+    let res;
+    if (selectedFile) {
+      const form = new FormData();
+      form.append('file', selectedFile);
+      res = await fetch('/api/upload', { method: 'POST', body: form });
+    } else {
+      res = await fetch('/api/upload-text', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: pastedText }),
+      });
+    }
+    
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || `Server error ${res.status}`);
+    }
+    
+    const data = await res.json();
+    currentJobId = data.job_id;
+    jobData = { citations: [], results: {}, log: [] };
+    
+    showStage('processing');
+    connectSSE(data.job_id);
+    
+  } catch (e) {
+    showError(e.message);
+    document.getElementById('btn-start').disabled = false;
+  }
+}
+
+// ─── SSE ──────────────────────────────────────────────────────────────────────
+function connectSSE(jobId) {
+  if (eventSource) eventSource.close();
+  eventSource = new EventSource(`/api/job/${jobId}/stream`);
+  
+  eventSource.onmessage = (e) => {
+    const msg = JSON.parse(e.data);
+    
+    if (msg.type === 'log') {
+      jobData.log.push(msg.message);
+      appendLog(msg.message);
+    }
+    
+    if (msg.type === 'status') {
+      updateProcessingUI(msg);
+    }
+    
+    if (msg.type === 'done') {
+      eventSource.close();
+      eventSource = null;
+      fetchFinalResults(jobId);
+    }
+  };
+  
+  eventSource.onerror = () => {
+    // Reconnect after brief pause
+    eventSource.close();
+    setTimeout(() => {
+      if (currentJobId) connectSSE(currentJobId);
+    }, 2000);
+  };
+}
+
+function updateProcessingUI(status) {
+  const titleEl = document.getElementById('proc-title');
+  const subtitleEl = document.getElementById('proc-subtitle');
+  const countEl = document.getElementById('proc-count');
+  const pctEl = document.getElementById('proc-pct');
+  const barEl = document.getElementById('proc-bar');
+  const labelEl = document.getElementById('proc-label');
+  
+  if (status.stage === 'extracting') {
+    titleEl.textContent = 'Extracting Citations';
+    subtitleEl.textContent = 'Analysing your document for Thai legal references...';
+    const ep = status.extraction_progress;
+    if (ep.total > 0) {
+      const pct = Math.round(((ep.current + 1) / ep.total) * 50);
+      countEl.textContent = `Chunk ${ep.current + 1} / ${ep.total}`;
+      pctEl.textContent = `${pct}%`;
+      barEl.style.width = `${pct}%`;
+    }
+    labelEl.textContent = `${status.citation_count} citation(s) found so far`;
+  }
+  
+  if (status.stage === 'verifying') {
+    titleEl.textContent = 'Verifying Citations';
+    subtitleEl.textContent = 'Checking each citation against Thai legal sources...';
+    const vp = status.verification_progress;
+    if (vp.total > 0) {
+      const pct = 50 + Math.round((vp.current / vp.total) * 50);
+      countEl.textContent = `${vp.current} / ${vp.total} verified`;
+      pctEl.textContent = `${pct}%`;
+      barEl.style.width = `${pct}%`;
+      labelEl.textContent = vp.label;
+    }
+    updateLiveResults(status);
+  }
+}
+
+function updateLiveResults(status) {
+  // Fetch latest job data for live result cards
+  fetch(`/api/job/${currentJobId}`)
+    .then(r => r.json())
+    .then(job => {
+      jobData.citations = job.citations;
+      jobData.results = job.results;
+      renderLiveCards();
+    })
+    .catch(() => {});
+}
+
+function renderLiveCards() {
+  const container = document.getElementById('live-results');
+  let html = '';
+  jobData.citations.forEach((c, i) => {
+    const r = jobData.results[String(i)];
+    const label = c.act_name || c.citation_text?.substring(0, 55) + '…';
+    const sec = c.section ? ` § ${c.section}` : '';
+    
+    let statusHtml;
+    if (r) {
+      const s = STATUS[r.status] || STATUS.unverifiable;
+      statusHtml = `<span class="badge ${s.cls}">${s.icon} ${s.label}</span>`;
+    } else {
+      statusHtml = `<span style="font-size:12px;color:var(--text-faint)">pending</span>`;
+    }
+    
+    html += `<div class="cit-card" style="opacity:${r ? 1 : 0.4}">
+      <div class="cit-row">
+        <div style="flex:1"><span style="font-size:13px;font-weight:500;color:#d0d8e0">${esc(label)}${esc(sec)}</span></div>
+        ${statusHtml}
+      </div>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+function appendLog(message) {
+  const log = document.getElementById('log-area');
+  const time = new Date().toLocaleTimeString();
+  log.innerHTML += `<div><span class="time">${time}</span> ${esc(message)}</div>`;
+  log.scrollTop = log.scrollHeight;
+}
+
+// ─── Final results ────────────────────────────────────────────────────────────
+async function fetchFinalResults(jobId) {
+  try {
+    const res = await fetch(`/api/job/${jobId}`);
+    const job = await res.json();
+    jobData = { citations: job.citations, results: job.results, log: job.log };
+    showReport();
+  } catch (e) {
+    showError('Failed to fetch results: ' + e.message);
+  }
+}
+
+function showReport() {
+  showStage('report');
+  
+  const results = Object.values(jobData.results);
+  const total = jobData.citations.length;
+  const checked = results.length;
+  
+  // Overall score
+  const avg = checked > 0 ? Math.round(results.reduce((s, r) => s + (r.confidence || 0), 0) / checked) : 0;
+  const scoreColor = avg >= 70 ? 'var(--teal-light)' : avg >= 40 ? 'var(--yellow)' : 'var(--red)';
+  const ringGrad = `conic-gradient(${avg >= 70 ? 'var(--teal)' : avg >= 40 ? 'var(--yellow)' : 'var(--red)'} ${avg * 3.6}deg, rgba(255,255,255,0.06) 0deg)`;
+  
+  // Status counts
+  const counts = {};
+  results.forEach(r => { counts[r.status] = (counts[r.status] || 0) + 1; });
+  let badgesHtml = '';
+  Object.entries(counts).forEach(([s, n]) => {
+    const cfg = STATUS[s] || STATUS.unverifiable;
+    badgesHtml += `<span class="badge ${cfg.cls}">${cfg.icon} ${n} ${cfg.label}</span> `;
+  });
+  
+  document.getElementById('report-summary').innerHTML = `
+    <div class="score-ring" style="background:${ringGrad}">
+      <div class="score-inner">
+        <span class="score-num" style="color:${scoreColor}">${avg}%</span>
+        <span class="score-label">confidence</span>
+      </div>
+    </div>
+    <div style="flex:1">
+      <h2 style="font-size:22px;font-weight:700;margin-bottom:10px;">Verification Report</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">${badgesHtml}</div>
+      <div style="font-size:12px;color:var(--text-faint);margin-top:7px;">${checked} of ${total} citation(s) checked</div>
+    </div>`;
+  
+  // Detail cards
+  let cardsHtml = '';
+  jobData.citations.forEach((c, i) => {
+    const r = jobData.results[String(i)];
+    if (!r) return;
+    const cfg = STATUS[r.status] || STATUS.unverifiable;
+    
+    let detailHtml = '';
+    if (r.source_text) detailHtml += detailSection('Source Text', r.source_text, 'var(--teal-light)', true);
+    if (r.issue_details) detailHtml += detailSection('Issue', r.issue_details, r.status === 'inaccurate' ? 'var(--red)' : 'var(--yellow)');
+    if (r.suggested_correction) detailHtml += detailSection('Suggested Correction', r.suggested_correction, 'var(--green)');
+    if (r.amendment_status) detailHtml += detailSection('Amendment Status', r.amendment_status, 'var(--brown)');
+    if (r.sources_checked?.length) detailHtml += detailSection('Sources Checked', r.sources_checked.join(', '), 'var(--text-faint)');
+    
+    cardsHtml += `
+    <div class="cit-card" onclick="this.classList.toggle('expanded')">
+      <div class="cit-row">
+        <div style="flex:1">
+          <div class="cit-text">"${esc(c.citation_text)}"</div>
+          <div class="cit-meta">${[c.act_name, c.section && '§ ' + c.section, c.type].filter(Boolean).join(' · ')}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+          <span style="font-size:13px;font-weight:600;color:${statusColor(r.status)}">${r.confidence}%</span>
+          <span class="badge ${cfg.cls}">${cfg.icon} ${cfg.label}</span>
+        </div>
+      </div>
+      <div class="cit-detail">${detailHtml}</div>
+    </div>`;
+  });
+  document.getElementById('report-results').innerHTML = cardsHtml;
+  
+  // Log
+  const reportLog = document.getElementById('report-log');
+  reportLog.innerHTML = jobData.log.map(l => `<div>${esc(l)}</div>`).join('');
+}
+
+function detailSection(label, value, color, mono = false) {
+  return `<div class="detail-section">
+    <div class="detail-label" style="color:${color}">${label}</div>
+    <div class="detail-value ${mono ? 'detail-mono' : ''}">${esc(value)}</div>
+  </div>`;
+}
+
+function statusColor(s) {
+  return { verified:'var(--green)', partially_verified:'var(--yellow)', inaccurate:'var(--red)', outdated:'var(--brown)', unverifiable:'var(--grey)' }[s] || 'var(--grey)';
+}
+
+// ─── Cancel ───────────────────────────────────────────────────────────────────
+async function cancelJob() {
+  if (!currentJobId) return;
+  try {
+    await fetch(`/api/job/${currentJobId}/cancel`, { method: 'POST' });
+  } catch (e) { /* ignore */ }
+}
+
+// ─── Export ───────────────────────────────────────────────────────────────────
+function exportJSON() {
+  const report = {
+    date: new Date().toISOString(),
+    overall_confidence: Object.values(jobData.results).length > 0
+      ? Math.round(Object.values(jobData.results).reduce((s, r) => s + (r.confidence || 0), 0) / Object.values(jobData.results).length)
+      : 0,
+    citations: jobData.citations.map((c, i) => ({ ...c, verification: jobData.results[String(i)] || null })),
+    log: jobData.log,
+  };
+  const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `btf-verification-${Date.now()}.json`;
+  a.click();
+}
+
+// ─── Reset ────────────────────────────────────────────────────────────────────
+function resetAll() {
+  if (eventSource) { eventSource.close(); eventSource = null; }
+  currentJobId = null;
+  selectedFile = null;
+  jobData = { citations: [], results: {}, log: [] };
+  document.getElementById('file-input').value = '';
+  document.getElementById('file-label').textContent = 'Drop a file here or click to browse';
+  document.getElementById('paste-area').value = '';
+  document.getElementById('btn-start').disabled = false;
+  document.getElementById('log-area').innerHTML = '';
+  document.getElementById('live-results').innerHTML = '';
+  hideError();
+  showStage('upload');
+}
+
+// ─── Stage management ─────────────────────────────────────────────────────────
+function showStage(name) {
+  ['upload', 'processing', 'report'].forEach(s => {
+    document.getElementById(`stage-${s}`).classList.toggle('hidden', s !== name);
+  });
+  document.getElementById('btn-reset').classList.toggle('hidden', name === 'upload');
+}
+
+// ─── Util ─────────────────────────────────────────────────────────────────────
+function esc(s) {
+  if (!s) return '';
+  const d = document.createElement('div');
+  d.textContent = String(s);
+  return d.innerHTML;
+}
+</script>
+</body>
+</html>
