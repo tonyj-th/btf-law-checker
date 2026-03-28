@@ -97,8 +97,13 @@ class LawKB:
                 self._act_mapping = {k: v for k, v in raw.items() if not k.startswith("_")}
             logger.info(f"KB: Loaded {len(self._act_mapping)} act name mappings")
 
-        # Initialize ChromaDB (if available)
+        # Initialize ChromaDB (if available) — check kb_dir first, then bundled path
         chroma_dir = self.kb_dir / "chroma"
+        if not chroma_dir.exists():
+            bundled = Path(__file__).parent / "kb_data" / "chroma"
+            if bundled.exists():
+                chroma_dir = bundled
+                logger.info(f"KB: Using bundled ChromaDB at {chroma_dir}")
         if chroma_dir.exists():
             try:
                 import chromadb
