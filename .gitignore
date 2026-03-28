@@ -3,4 +3,6 @@ __pycache__/
 .env
 .venv/
 citation_cache.db
-kb_data/
+kb_data/section_index.json
+kb_data/kb_meta.json
+!kb_data/chroma/
